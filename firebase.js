@@ -4,12 +4,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBq-VsN6OvM2z9cn1AGZJYKRSTchzu7Y2zY",
-  authDomain: "citpl-a06f5.firebaseapp.com",
-  projectId: "citpl-a06f5",
-  storageBucket: "citpl-a06f5.firebasestorage.app",
-  messagingSenderId: "526857454057",
-  appId: "1:526857454057:web:790513275da055eff4cb78"
+  apiKey: "AIzaSyB2uPhFR33nYWZ1sp6zngpikPuwRyztK1c",
+  authDomain: "citpl-f6154.firebaseapp.com",
+  projectId: "citpl-f6154",
+  storageBucket: "citpl-f6154.firebasestorage.app",
+  messagingSenderId: "105999478032",
+  appId: "1:105999478032:web:168a0e08b8ea4141f00995"
 };
 
 const app = initializeApp(firebaseConfig);
