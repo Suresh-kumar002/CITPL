@@ -1,0 +1,1858 @@
+CITPL CRICKET LEAGUE PLATFORM
+
+Complete Technical Architecture, Database Schema, API Structure & UI Blueprint
+
+---
+
+1. PROJECT ARCHITECTURE
+
+Build CITPL as a full-stack web application with three major layers:
+
+Frontend
+
+Recommended:
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Component library such as shadcn/ui
+
+Backend
+
+Recommended:
+
+- Next.js API routes or separate Node.js backend
+- TypeScript
+- REST APIs
+- WebSocket/Socket.IO for real-time auction and live scoring
+
+Database
+
+Use:
+
+- PostgreSQL
+
+ORM:
+
+- Prisma or Drizzle ORM
+
+File Storage
+
+Use cloud/object storage for:
+
+- Player photos
+- Team logos
+- Documents
+- Payment screenshots if required
+
+Authentication
+
+Use secure authentication with:
+
+- Email/mobile login
+- Password or OTP
+- Session management
+- Role-based authorization
+
+---
+
+2. CORE USER ROLES
+
+Create these roles:
+
+SUPER_ADMIN
+AUCTION_ADMIN
+CAPTAIN
+SCOREKEEPER
+PLAYER
+PUBLIC
+
+Permissions must be enforced on the backend.
+
+---
+
+3. HIGH-LEVEL DATA RELATIONSHIP
+
+The main relationship is:
+
+SEASON
+   |
+   +---- TEAMS
+   |
+   +---- PLAYER REGISTRATIONS
+   |
+   +---- AUCTION
+   |        |
+   |        +---- AUCTION PLAYERS
+   |                 |
+   |                 +---- BIDS
+   |
+   +---- MATCHES
+            |
+            +---- INNINGS
+                    |
+                    +---- BALL EVENTS
+                              |
+                              +---- PLAYER STATISTICS
+
+Team ownership:
+
+CAPTAIN
+   |
+   +---- TEAM
+           |
+           +---- PLAYERS
+
+---
+
+4. DATABASE TABLES
+
+4.1 USERS
+
+users
+
+Fields:
+
+id
+name
+email
+mobile
+password_hash
+role
+profile_image
+is_active
+created_at
+updated_at
+last_login_at
+
+Role values:
+
+SUPER_ADMIN
+AUCTION_ADMIN
+CAPTAIN
+SCOREKEEPER
+PLAYER
+
+Never store passwords in plain text.
+
+---
+
+5. SEASONS
+
+seasons
+
+Fields:
+
+id
+name
+year
+registration_start
+registration_end
+auction_date
+auction_start_time
+status
+registration_fee
+team_purse
+max_squad_size
+min_squad_size
+default_match_overs
+created_at
+updated_at
+
+Example:
+
+CITPL 2026
+Year: 2026
+Registration Fee: ₹50
+Team Purse: ₹10,000
+
+Status:
+
+DRAFT
+REGISTRATION_OPEN
+REGISTRATION_CLOSED
+AUCTION
+TOURNAMENT
+COMPLETED
+
+---
+
+6. PLAYERS
+
+players
+
+Fields:
+
+id
+user_id
+player_id
+full_name
+photo_url
+date_of_birth
+gender
+college_id
+course
+branch
+semester
+mobile
+email
+playing_role
+batting_style
+bowling_style
+experience
+achievements
+is_verified
+created_at
+updated_at
+
+Playing role:
+
+BATTER
+BOWLER
+ALL_ROUNDER
+WICKET_KEEPER
+
+---
+
+7. PLAYER REGISTRATIONS
+
+player_registrations
+
+Fields:
+
+id
+registration_id
+season_id
+player_id
+status
+submitted_at
+reviewed_at
+reviewed_by
+rejection_reason
+correction_note
+
+Status:
+
+PENDING_PAYMENT
+PAYMENT_PENDING_VERIFICATION
+UNDER_REVIEW
+APPROVED
+REJECTED
+CORRECTION_REQUIRED
+AUCTION_ELIGIBLE
+
+---
+
+8. PAYMENTS
+
+payments
+
+Fields:
+
+id
+registration_id
+amount
+currency
+payment_method
+transaction_id
+payment_reference
+screenshot_url
+status
+verified_by
+verified_at
+created_at
+
+Status:
+
+PENDING
+SUCCESS
+FAILED
+VERIFIED
+REJECTED
+REFUNDED
+
+The registration fee should be configurable, with CITPL initially set to ₹50.
+
+---
+
+9. PLAYER CATEGORIES
+
+player_categories
+
+Fields:
+
+id
+season_id
+name
+description
+base_price
+bid_increment
+display_order
+gender_rule
+is_active
+
+Example:
+
+A
+B
+C
+D
+
+The prices must NOT be hard-coded.
+
+Admin should configure them.
+
+---
+
+10. TEAMS
+
+teams
+
+Fields:
+
+id
+season_id
+name
+short_name
+logo_url
+captain_id
+vice_captain_id
+starting_purse
+remaining_purse
+total_spent
+max_squad_size
+status
+created_at
+updated_at
+
+Example:
+
+Team Warriors
+TW
+Starting Purse: ₹10,000
+
+---
+
+11. TEAM MEMBERS
+
+team_members
+
+Fields:
+
+id
+team_id
+player_id
+auction_price
+category_id
+joined_at
+status
+
+Status:
+
+ACTIVE
+RELEASED
+TRANSFERRED
+
+---
+
+12. AUCTION
+
+auctions
+
+Fields:
+
+id
+season_id
+status
+current_player_id
+current_bid
+highest_team_id
+bid_increment
+timer_seconds
+started_at
+ended_at
+
+Status:
+
+NOT_STARTED
+LIVE
+PAUSED
+COMPLETED
+
+---
+
+13. AUCTION PLAYERS
+
+auction_players
+
+Fields:
+
+id
+auction_id
+player_id
+category_id
+base_price
+current_bid
+winning_team_id
+final_price
+status
+lot_number
+started_at
+sold_at
+
+Status:
+
+WAITING
+LIVE
+SOLD
+UNSOLD
+WITHDRAWN
+
+---
+
+14. BIDS
+
+bids
+
+Fields:
+
+id
+auction_player_id
+team_id
+amount
+placed_by
+created_at
+sequence_number
+
+Every bid should be stored.
+
+Example:
+
+Team A - ₹500
+Team B - ₹600
+Team A - ₹700
+Team C - ₹800
+
+Never overwrite old bids.
+
+---
+
+15. MATCHES
+
+matches
+
+Fields:
+
+id
+season_id
+match_number
+team_a_id
+team_b_id
+venue
+scheduled_date
+scheduled_time
+overs
+status
+toss_winner
+toss_decision
+winner_team_id
+result_text
+player_of_match_id
+started_at
+completed_at
+
+Status:
+
+SCHEDULED
+LIVE
+INNINGS_BREAK
+COMPLETED
+ABANDONED
+POSTPONED
+
+---
+
+16. SCOREKEEPER ASSIGNMENTS
+
+scorekeeper_assignments
+
+Fields:
+
+id
+match_id
+user_id
+assigned_by
+status
+created_at
+
+Only assigned scorekeepers can update that match.
+
+---
+
+17. INNINGS
+
+innings
+
+Fields:
+
+id
+match_id
+batting_team_id
+bowling_team_id
+innings_number
+total_runs
+wickets
+legal_balls
+status
+target
+
+---
+
+18. BALL EVENTS
+
+This is the most important table for live scoring.
+
+ball_events
+
+Fields:
+
+id
+innings_id
+over_number
+ball_number
+striker_id
+non_striker_id
+bowler_id
+
+runs_batter
+runs_total
+
+is_wide
+is_no_ball
+is_bye
+is_leg_bye
+is_dead_ball
+
+wicket
+wicket_type
+dismissed_player_id
+fielder_id
+
+created_by
+created_at
+event_sequence
+
+Every delivery should create one event.
+
+Example:
+
+Over 3
+Ball 4
+
+Striker: Rahul
+Bowler: Amit
+
+runs_batter: 4
+runs_total: 4
+
+wicket: false
+
+---
+
+19. MATCH PLAYERS
+
+match_players
+
+Fields:
+
+id
+match_id
+team_id
+player_id
+is_playing_xi
+is_substitute
+batting_position
+
+---
+
+20. PLAYER MATCH STATISTICS
+
+player_match_statistics
+
+Fields:
+
+id
+match_id
+player_id
+
+runs
+balls
+fours
+sixes
+strike_rate
+
+overs
+runs_conceded
+wickets
+economy
+
+catches
+run_outs
+
+These values should preferably be calculated from ball events.
+
+---
+
+21. TEAM MATCH STATISTICS
+
+team_match_statistics
+
+Fields:
+
+id
+match_id
+team_id
+runs
+wickets
+overs
+run_rate
+result
+
+---
+
+22. TOURNAMENT PLAYER STATISTICS
+
+player_tournament_statistics
+
+Fields:
+
+id
+season_id
+player_id
+matches
+runs
+balls
+fours
+sixes
+highest_score
+average
+strike_rate
+wickets
+runs_conceded
+economy
+catches
+potm_awards
+
+These should update after every completed match.
+
+---
+
+23. POINTS TABLE
+
+points_table
+
+Fields:
+
+id
+season_id
+team_id
+matches
+wins
+losses
+ties
+no_results
+points
+runs_for
+runs_against
+overs_faced
+overs_bowled
+net_run_rate
+
+Points and NRR rules should come from season settings.
+
+---
+
+24. NOTIFICATIONS
+
+notifications
+
+Fields:
+
+id
+user_id
+title
+message
+type
+is_read
+created_at
+
+Types:
+
+REGISTRATION
+PAYMENT
+AUCTION
+TEAM
+MATCH
+SYSTEM
+
+---
+
+25. AUDIT LOGS
+
+audit_logs
+
+Fields:
+
+id
+user_id
+action
+entity_type
+entity_id
+old_value
+new_value
+ip_address
+created_at
+
+Example:
+
+Admin
+Changed player category
+Player #101
+B → A
+
+---
+
+26. API STRUCTURE
+
+Use REST APIs with consistent responses.
+
+General format:
+
+{
+  "success": true,
+  "data": {},
+  "message": "Operation successful"
+}
+
+Error:
+
+{
+  "success": false,
+  "message": "You do not have permission."
+}
+
+---
+
+27. AUTH APIs
+
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/forgot-password
+POST /api/auth/reset-password
+GET  /api/auth/me
+
+---
+
+28. PLAYER APIs
+
+POST   /api/players/register
+GET    /api/players
+GET    /api/players/:id
+PUT    /api/players/:id
+DELETE /api/players/:id
+
+Admin:
+
+GET  /api/admin/players/pending
+POST /api/admin/players/:id/approve
+POST /api/admin/players/:id/reject
+POST /api/admin/players/:id/request-correction
+
+---
+
+29. PAYMENT APIs
+
+POST /api/payments/create
+POST /api/payments/verify
+GET  /api/admin/payments
+POST /api/admin/payments/:id/approve
+POST /api/admin/payments/:id/reject
+
+---
+
+30. TEAM APIs
+
+GET  /api/teams
+GET  /api/teams/:id
+POST /api/admin/teams
+PUT  /api/admin/teams/:id
+DELETE /api/admin/teams/:id
+
+Captain:
+
+GET /api/captain/team
+GET /api/captain/team/squad
+PUT /api/captain/team/playing-xi
+
+---
+
+31. AUCTION APIs
+
+GET  /api/auction
+POST /api/admin/auction/start
+POST /api/admin/auction/pause
+POST /api/admin/auction/resume
+POST /api/admin/auction/next-player
+POST /api/admin/auction/previous-player
+POST /api/admin/auction/sold
+POST /api/admin/auction/unsold
+POST /api/admin/auction/undo
+
+Bidding:
+
+POST /api/auction/:playerId/bid
+GET  /api/auction/:playerId/bids
+
+---
+
+32. MATCH APIs
+
+GET  /api/matches
+GET  /api/matches/:id
+POST /api/admin/matches
+PUT  /api/admin/matches/:id
+POST /api/admin/matches/:id/start
+POST /api/admin/matches/:id/complete
+
+---
+
+33. SCORING APIs
+
+GET  /api/matches/:id/score
+POST /api/matches/:id/ball
+POST /api/matches/:id/undo-ball
+GET  /api/matches/:id/scorecard
+GET  /api/matches/:id/commentary
+
+Admin correction:
+
+POST /api/admin/matches/:id/correct-score
+POST /api/admin/matches/:id/unlock
+POST /api/admin/matches/:id/lock
+
+---
+
+34. POINTS & STATISTICS APIs
+
+GET /api/points-table
+GET /api/statistics/players
+GET /api/statistics/batting
+GET /api/statistics/bowling
+GET /api/statistics/teams
+GET /api/statistics/leaderboards
+
+---
+
+35. REAL-TIME EVENTS
+
+Use WebSockets/Socket.IO or an equivalent real-time technology.
+
+Auction events:
+
+auction_started
+auction_paused
+auction_resumed
+player_started
+bid_placed
+player_sold
+player_unsold
+auction_player_changed
+
+Live match events:
+
+match_started
+ball_added
+wicket
+boundary
+innings_updated
+over_completed
+innings_completed
+match_completed
+
+All connected clients should receive relevant events immediately.
+
+---
+
+36. FOLDER STRUCTURE
+
+Recommended Next.js structure:
+
+citpl/
+│
+├── app/
+│   ├── page.tsx
+│   ├── login/
+│   ├── register/
+│   ├── auction/
+│   ├── live/
+│   ├── matches/
+│   ├── teams/
+│   ├── players/
+│   ├── points-table/
+│   │
+│   ├── captain/
+│   │   └── dashboard/
+│   │
+│   ├── scorekeeper/
+│   │   └── dashboard/
+│   │
+│   └── admin/
+│       ├── dashboard/
+│       ├── players/
+│       ├── payments/
+│       ├── categories/
+│       ├── teams/
+│       ├── auction/
+│       ├── matches/
+│       ├── scorekeepers/
+│       ├── statistics/
+│       ├── reports/
+│       ├── audit-logs/
+│       └── settings/
+│
+├── components/
+│   ├── ui/
+│   ├── player/
+│   ├── team/
+│   ├── auction/
+│   ├── scoring/
+│   ├── match/
+│   ├── admin/
+│   └── charts/
+│
+├── lib/
+│   ├── auth/
+│   ├── database/
+│   ├── auction/
+│   ├── scoring/
+│   ├── statistics/
+│   ├── notifications/
+│   └── permissions/
+│
+├── prisma/
+│   └── schema.prisma
+│
+├── types/
+│
+├── hooks/
+│
+├── utils/
+│
+└── public/
+    ├── images/
+    └── logos/
+
+---
+
+37. PUBLIC HOMEPAGE
+
+Homepage should contain:
+
+Header
+
+CITPL logo
+
+Navigation:
+
+Home
+Auction
+Live
+Matches
+Teams
+Players
+Points Table
+Stats
+
+Buttons:
+
+Register
+Login
+
+---
+
+Hero
+
+CITPL 2026
+
+THE COLLEGE CRICKET LEAGUE
+
+PLAY • BID • COMPETE • WIN
+
+Buttons:
+
+REGISTER NOW
+
+WATCH LIVE
+
+---
+
+38. CAPTAIN DASHBOARD UI
+
+Sidebar:
+
+Dashboard
+My Team
+Squad
+Playing XI
+Auction
+Matches
+Statistics
+Notifications
+Profile
+Logout
+
+Main dashboard:
+
+TEAM WARRIORS
+
+Purse
+₹3,600
+
+Players
+9 / 15
+
+Spent
+₹6,400
+
+Matches
+3
+
+Wins
+2
+
+Points
+4
+
+Below:
+
+My Squad
+
+Player cards.
+
+---
+
+39. CAPTAIN SQUAD SCREEN
+
+Each player:
+
+[PHOTO]
+
+Rahul Sharma
+
+All-Rounder
+
+Auction Price
+₹1,200
+
+Runs
+142
+
+Wickets
+6
+
+Matches
+4
+
+Buttons:
+
+View Profile
+Add to Playing XI
+Remove
+
+Captain should not be able to change official statistics.
+
+---
+
+40. PLAYING XI SCREEN
+
+Display:
+
+SELECT PLAYING XI
+
+1. Rahul
+2. Amit
+3. Vikas
+4. Mohit
+...
+
+Show:
+
+11 / 11 Selected
+
+Optional:
+
+- Batting order
+- Wicket keeper
+- Captain
+- Vice Captain
+
+Prevent selection beyond allowed squad rules.
+
+---
+
+41. CAPTAIN AUCTION SCREEN
+
+During auction:
+
+CITPL AUCTION
+
+CURRENT PLAYER
+
+[PHOTO]
+
+Rahul Sharma
+All-Rounder
+Category A
+
+Base Price
+₹500
+
+CURRENT BID
+₹1,200
+
+Highest Team
+Team Bravo
+
+Captain's private area:
+
+MY PURSE
+
+₹3,800
+
+MY PLAYERS
+
+8 / 15
+
+Bid button:
+
+PLACE BID ₹1,300
+
+Confirmation popup:
+
+Confirm bid?
+
+₹1,300
+
+CANCEL
+CONFIRM
+
+---
+
+42. ADMIN DASHBOARD
+
+Top cards:
+
+REGISTERED
+125
+
+APPROVED
+108
+
+PENDING
+17
+
+TEAMS
+8
+
+SOLD PLAYERS
+96
+
+UNSOLD
+12
+
+Second row:
+
+UPCOMING MATCHES
+3
+
+LIVE MATCHES
+1
+
+REVENUE
+₹6,250
+
+TOTAL AUCTION VALUE
+₹52,400
+
+Quick actions:
+
+Approve Players
+Start Auction
+Create Match
+Assign Scorekeeper
+View Payments
+
+---
+
+43. ADMIN PLAYER APPROVAL SCREEN
+
+Table:
+
+Player| Role| Payment| Status| Action
+Rahul| All-Rounder| Verified| Pending| Review
+Amit| Bowler| Verified| Pending| Review
+
+Review screen:
+
+Player Information
+
+Photo
+Name
+Course
+Branch
+Role
+Gender
+Experience
+
+Payment
+
+₹50
+Transaction ID
+
+[ APPROVE ]
+
+[ REJECT ]
+
+[ REQUEST CORRECTION ]
+
+---
+
+44. ADMIN CATEGORY SCREEN
+
+Show:
+
+CATEGORY A
+
+Base Price: ₹500
+Bid Increment: ₹100
+
+Players: 20
+
+Buttons:
+
+Edit
+Add Player
+View Players
+
+Admin can drag/drop players between categories if required.
+
+---
+
+45. AUCTION CONTROL SCREEN
+
+This is the main admin auction screen.
+
+Left:
+
+CURRENT PLAYER
+
+Center:
+
+PLAYER PHOTO
+
+Rahul Sharma
+
+CATEGORY A
+
+BASE PRICE ₹500
+
+CURRENT BID
+
+₹1,400
+
+TEAM WARRIORS
+
+Right:
+
+TEAM PURSES
+
+Team A ₹4,200
+Team B ₹3,600
+Team C ₹2,100
+Team D ₹5,000
+
+Bottom:
+
+START
+PAUSE
+UNDO
+SOLD
+UNSOLD
+NEXT
+
+---
+
+46. AUCTION AUDIENCE SCREEN
+
+For projector:
+
+Hide admin controls.
+
+Show:
+
+CITPL 2026 AUCTION
+
+LOT #27
+
+RAHUL SHARMA
+
+ALL-ROUNDER
+
+₹1,400
+
+TEAM WARRIORS
+
+BIDDING LIVE
+
+00:14
+
+Below:
+
+Recent sold players.
+
+---
+
+47. SCOREKEEPER DASHBOARD
+
+Show assigned matches:
+
+MY ASSIGNED MATCHES
+
+Match #05
+
+Warriors vs Titans
+
+Today — 4:30 PM
+
+[OPEN SCORER]
+
+---
+
+48. SCORING SCREEN
+
+Make this extremely mobile friendly.
+
+Top:
+
+WARRIORS
+67 / 3
+
+7.4 / 10 OVERS
+
+RR 8.74
+
+Current batters:
+
+Rahul 34 (21)
+Amit 12 (8)
+
+Bowler:
+
+Vikas
+2.4 - 0 - 18 - 1
+
+---
+
+49. SCORING BUTTONS
+
+Large buttons:
+
+0
+1
+2
+3
+4
+6
+
+Extras:
+
+WIDE
+NO BALL
+BYE
+LEG BYE
+
+Other:
+
+WICKET
+UNDO
+END OVER
+
+---
+
+50. WICKET FLOW
+
+When scorekeeper presses WICKET:
+
+Open popup:
+
+SELECT DISMISSED PLAYER
+
+Rahul
+Amit
+Vikas
+
+Then:
+
+WICKET TYPE
+
+Bowled
+Caught
+LBW
+Run Out
+Stumped
+Hit Wicket
+Other
+
+If caught:
+
+Select fielder.
+
+Then save event.
+
+---
+
+51. LIVE SCORE PUBLIC SCREEN
+
+Top:
+
+🔴 LIVE
+
+Then:
+
+WARRIORS
+87 / 4
+
+9.2 OVERS
+
+TARGET 101
+
+NEED 14 RUNS FROM 4 BALLS
+
+Current players.
+
+Current bowler.
+
+Last over.
+
+Commentary.
+
+---
+
+52. MATCH SCORECARD
+
+Tabs:
+
+SUMMARY
+SCORECARD
+COMMENTARY
+SQUADS
+
+Scorecard:
+
+WARRIORS — 102/5
+
+BATTER       R    B    4s    6s    SR
+
+Rahul       42   27    4     2   155.55
+Amit        18   12    2     1   150.00
+
+Bowling:
+
+BOWLER       O    R    W    ECON
+
+Vikas       2.0   15   2    7.50
+
+---
+
+53. POINTS TABLE SCREEN
+
+CITPL 2026
+
+TEAM          M    W    L    PTS    NRR
+
+Warriors      4    3    1     6    +1.21
+Titans        4    2    2     4    +0.32
+...
+
+Sort automatically according to configured tournament rules.
+
+---
+
+54. PLAYER LEADERBOARD
+
+Tabs:
+
+RUNS
+WICKETS
+SIXES
+FOURS
+STRIKE RATE
+ECONOMY
+POTM
+
+Example:
+
+TOP RUN SCORERS
+
+1 Rahul — 287
+2 Amit — 251
+3 Vikas — 224
+
+---
+
+55. NOTIFICATION CENTER
+
+Player/captain sees:
+
+✓ Registration Approved
+
+✓ Payment Verified
+
+✓ You have been added to Category A
+
+✓ Auction starts tomorrow at 5 PM
+
+✓ You have been purchased by Team Warriors
+
+🔴 Team Warriors vs Titans is LIVE
+
+---
+
+56. SECURITY ARCHITECTURE
+
+Implement middleware:
+
+requireAuth()
+requireRole()
+requireSeasonAccess()
+requireTeamOwnership()
+requireMatchPermission()
+
+Examples:
+
+Captain requests:
+
+GET /api/teams/other-team
+
+Backend checks ownership.
+
+Return:
+
+403 Forbidden
+
+Scorekeeper tries to access auction admin:
+
+403 Forbidden
+
+---
+
+57. AUCTION TRANSACTION SAFETY
+
+Auction bids must be processed server-side.
+
+When bid arrives:
+
+1. Verify user
+2. Verify captain role
+3. Verify team ownership
+4. Verify auction is LIVE
+5. Verify player is LIVE
+6. Verify bid > current bid
+7. Verify sufficient purse
+8. Verify squad limit
+9. Save bid
+10. Update current bid
+11. Broadcast bid
+
+All of this should happen atomically.
+
+---
+
+58. LIVE SCORE TRANSACTION SAFETY
+
+When a ball is submitted:
+
+1. Verify scorekeeper
+2. Verify match assignment
+3. Verify match is LIVE
+4. Validate striker
+5. Validate bowler
+6. Validate innings
+7. Save ball event
+8. Recalculate innings
+9. Update score
+10. Update player statistics
+11. Broadcast event
+
+Avoid duplicate ball submissions.
+
+Use unique event IDs or idempotency keys.
+
+---
+
+59. IMPORTANT: SINGLE SOURCE OF TRUTH
+
+Do not manually maintain:
+
+Player runs
+Team runs
+Points
+NRR
+Bowler economy
+Player strike rate
+
+These should be calculated from match events.
+
+For example:
+
+BALL EVENTS
+     ↓
+INNINGS SCORE
+     ↓
+MATCH SCORECARD
+     ↓
+PLAYER MATCH STATS
+     ↓
+TOURNAMENT PLAYER STATS
+     ↓
+LEADERBOARD
+
+This prevents inconsistent statistics.
+
+---
+
+60. MVP PRIORITY
+
+If development needs to happen in stages, build in this order:
+
+MVP 1
+
+Authentication
+
+Player registration
+
+₹50 payment workflow
+
+Admin approval
+
+Teams
+
+Captain dashboard
+
+---
+
+MVP 2
+
+Auction
+
+Bidding
+
+Purse
+
+Sold/unsold
+
+Auction history
+
+---
+
+MVP 3
+
+Matches
+
+Scorekeeper
+
+Ball-by-ball scoring
+
+Live score
+
+---
+
+MVP 4
+
+Points table
+
+NRR
+
+Player statistics
+
+Leaderboards
+
+---
+
+MVP 5
+
+Notifications
+
+Reports
+
+Sponsors
+
+Season history
+
+Analytics
+
+---
+
+61. FINAL ACCEPTANCE TEST
+
+The project should be considered complete only if this scenario works from beginning to end:
+
+PLAYER REGISTERS
+        ↓
+PAYS ₹50
+        ↓
+ADMIN VERIFIES PAYMENT
+        ↓
+ADMIN APPROVES PLAYER
+        ↓
+PLAYER GETS PLAYER ID
+        ↓
+ADMIN ASSIGNS CATEGORY
+        ↓
+PLAYER ENTERS AUCTION
+        ↓
+CAPTAINS BID
+        ↓
+PLAYER SOLD
+        ↓
+TEAM PURSE DEDUCTED
+        ↓
+PLAYER ADDED TO TEAM
+        ↓
+CAPTAIN SEES PLAYER
+        ↓
+ADMIN CREATES MATCH
+        ↓
+CAPTAIN SELECTS PLAYING XI
+        ↓
+SCOREKEEPER IS ASSIGNED
+        ↓
+MATCH STARTS
+        ↓
+BALL-BY-BALL SCORING
+        ↓
+PUBLIC LIVE SCORE UPDATES
+        ↓
+MATCH COMPLETES
+        ↓
+SCORECARD GENERATED
+        ↓
+PLAYER STATS UPDATED
+        ↓
+POINTS TABLE UPDATED
+        ↓
+NRR UPDATED
+        ↓
+LEADERBOARD UPDATED
+
+Every step must work using real persisted data.
+
+---
+
+62. DEVELOPMENT RULE
+
+Do not build the application as a collection of disconnected pages.
+
+The entire platform must be connected through one database and one consistent permission system.
+
+For example:
+
+If Rahul is sold to Team Warriors for ₹1,500 during auction:
+
+The system must automatically update:
+
+Rahul → Team Warriors
+
+Team Warriors:
+Spent +₹1,500
+Remaining Purse -₹1,500
+
+Auction:
+Rahul = SOLD
+
+Captain Dashboard:
+Rahul appears in squad
+
+Public:
+Rahul appears in Team Warriors squad
+
+Statistics:
+Rahul is now associated with Team Warriors
+
+Similarly, if Rahul scores 45 runs:
+
+Ball events
+     ↓
+Match score
+     ↓
+Rahul's match stats
+     ↓
+Rahul's tournament stats
+     ↓
+Team total
+     ↓
+Leaderboard
+
+No manual duplicate updating should be required.
+
+---
+
+63. FINAL PRODUCT VISION
+
+CITPL should ultimately become a complete digital cricket ecosystem for the college.
+
+The platform should handle:
+
+REGISTRATION
+      ↓
+VERIFICATION
+      ↓
+AUCTION
+      ↓
+TEAM BUILDING
+      ↓
+MATCH MANAGEMENT
+      ↓
+LIVE SCORING
+      ↓
+STATISTICS
+      ↓
+POINTS TABLE
+      ↓
+FINALS
+      ↓
+WINNER
+      ↓
+HISTORICAL RECORD
+
+The system should be designed so that the next CITPL season can be started without rebuilding the application.
+
+Admin should simply create:
+
+CITPL 2027
+
+and configure:
+
+- Teams
+- Registration fee
+- Auction purse
+- Categories
+- Players
+- Matches
+- Rules
+
+The same platform should then run the entire 2027 tournament.
+
+END OF TECHNICAL BLUEPRINT

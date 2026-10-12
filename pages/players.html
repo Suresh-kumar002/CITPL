@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Directory & Leaderboard - CITPL 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css?v=20261010">
+</head>
+
+<body class="citpl-app">
+    <!-- Top Bar -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center gap-2">
+                <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='../index.html'" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </button>
+                <span><i class="fas fa-phone"></i> 9414200619 &nbsp;&nbsp; <i class="fas fa-envelope"></i> citpl@cit.ac.in</span>
+            </div>
+            <div>
+                <a href="../index.html">Home</a> | 
+                <a href="login.html" class="text-warning fw-bold"><i class="fas fa-user-shield me-1"></i> Admin Suite</a> |
+                <a href="auction.html" class="text-info fw-bold"><i class="fas fa-gavel me-1"></i> Live Auction</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2 sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html">
+                <img src="../assets/citpl-logo.png" alt="CITPL Logo" class="cit-logo">
+                <div>
+                    <div class="institute-title">सीआईटी प्रीमियर लीग 2026</div>
+                    <div class="institute-subtitle">Players Directory & Stats Leaderboard</div>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="register.html" class="btn btn-primary btn-sm rounded-pill fw-bold"><i class="fas fa-user-plus me-1"></i> Register as Player (₹50)</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Leaderboard Caps Highlight with High Contrast Text -->
+    <div class="bg-dark text-white py-4">
+        <div class="container px-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-4 border border-warning d-flex align-items-center gap-3">
+                        <div class="bg-warning text-dark p-3 rounded-circle fs-3"><i class="fas fa-fire"></i></div>
+                        <div>
+                            <span class="badge bg-warning text-dark mb-1 fw-bold">ORANGE CAP LEADER (Top Runs)</span>
+                            <h4 class="fw-bold mb-1 text-white">To be announced</h4>
+                            <div class="text-warning fw-bold small"><i class="fas fa-award me-1"></i> Admin will publish the leaderboard here</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-4 border border-info d-flex align-items-center gap-3">
+                        <div class="bg-info text-dark p-3 rounded-circle fs-3"><i class="fas fa-bowling-ball"></i></div>
+                        <div>
+                            <span class="badge bg-info text-dark mb-1 fw-bold">PURPLE CAP LEADER (Top Wickets)</span>
+                            <h4 class="fw-bold mb-1 text-white">To be announced</h4>
+                            <div class="text-info fw-bold small"><i class="fas fa-award me-1"></i> Admin will publish the leaderboard here</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Players Registry Table -->
+    <div class="container py-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white p-4 border-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="fas fa-users-cog me-2 text-primary"></i> Registered Players Registry</h4>
+                <div class="d-flex gap-2">
+                    <input type="text" id="playerSearchInput" class="form-control" placeholder="Search player name..." onkeyup="filterPlayers()">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table custom-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Role</th>
+                                <th>Category</th>
+                                <th>Branch/Sem</th>
+                                <th>Team</th>
+                                <th>Price</th>
+                                <th>Runs</th>
+                                <th>Wickets</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-shell.js"></script>
+    <script>
+        function renderPlayers() {
+            const players = window.citplDB.db.players || [];
+            const teams = window.citplDB.db.teams || [];
+            const body = document.getElementById("playersTableBody");
+
+            if (players.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-slash fs-2 mb-2 d-block text-secondary"></i>
+                            <h5 class="fw-bold text-dark">No Players Registered Yet</h5>
+                            <p class="mb-3">Be the first to register for CIT Premier League 2026!</p>
+                            <a href="register.html" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">
+                                <i class="fas fa-user-plus me-1"></i> Register Now (₹50)
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            body.innerHTML = players.map(p => {
+                const team = teams.find(t => t.id === p.teamId);
+                const photoSrc = p.photo || 'https://via.placeholder.com/150';
+                return `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="${photoSrc}" alt="${p.name}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #dee2e6;">
+                                <div>
+                                    <strong class="d-block text-dark">${p.name}</strong>
+                                    <small class="text-secondary fw-semibold">${p.registrationId || p.id}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border fw-bold">${p.role || 'All-Rounder'}</span></td>
+                        <td><span class="badge bg-info text-dark fw-bold">${p.category || 'Gold'}</span></td>
+                        <td class="fw-semibold text-dark">${p.branch || 'CIT'} (${p.sem || 'N/A'})</td>
+                        <td>${team ? `<span class="badge bg-primary fw-bold">${team.name}</span>` : `<span class="badge bg-secondary">Unsold</span>`}</td>
+                        <td class="fw-bold text-success fs-6">₹${p.auctionPrice || 0}</td>
+                        <td class="fw-bold fs-6">${p.runs || 0}</td>
+                        <td class="fw-bold text-danger fs-6">${p.wickets || 0}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterPlayers() {
+            const query = document.getElementById("playerSearchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#playersTableBody tr");
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(query) ? "" : "none";
+            });
+        }
+
+        renderPlayers();
+    </script>
+</body>
+
+</html>

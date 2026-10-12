@@ -1,0 +1,14 @@
+{
+  "name": "citpl-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "admin:setup": "node scripts/setup-admin.mjs",
+    "test:auth": "node --test tests/admin-auth.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

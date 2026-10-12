@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>CITPL 2026 - Official Live Match Center & Broadcast Scoreboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,700;0,800;1,700&family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/style.css?v=20261010">
+    <style>
+        :root {
+            --navy: #0A2A6B;
+            --blue: #0B4FB3;
+            --purple: #6A2C91;
+            --gold: #f59e0b;
+            --live-red: #ef4444;
+            --bg-dark: #090e1a;
+            --card-dark: #111827;
+            --border-dark: #1f2937;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: #081a42;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Live Header Nav */
+        .live-navbar {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+            border-bottom: 4px solid var(--purple);
+            padding: 12px 0;
+            box-shadow: 0 4px 20px rgba(10, 42, 107, 0.2);
+        }
+
+        .live-pulse-badge {
+            background-color: var(--live-red);
+            color: white;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+            animation: liveBlink 1.5s infinite;
+        }
+
+        @keyframes liveBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.96); box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        /* Match Hero Broadcast Card */
+        .match-hero-card {
+            background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gold), var(--blue));
+        }
+
+        .team-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(24px, 4vw, 38px);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+
+        .score-hero-display {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(48px, 9vw, 82px);
+            font-weight: 800;
+            line-height: 1;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .overs-display {
+            font-size: clamp(20px, 3.5vw, 32px);
+            color: #94a3b8;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .metric-pill {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .target-box {
+            background: linear-gradient(135deg, rgba(106, 44, 145, 0.4), rgba(59, 130, 246, 0.3));
+            border: 1.5px solid rgba(168, 85, 247, 0.5);
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: #f3e8ff;
+            font-weight: 700;
+            margin-top: 14px;
+            font-size: 1.05rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Navigation Tabs */
+        .live-tabs {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 6px;
+            display: flex;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .live-tab-btn {
+            flex: 1;
+            min-width: 130px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .live-tab-btn.active {
+            background: var(--blue);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(11, 79, 179, 0.25);
+        }
+
+        /* Content Cards */
+        .live-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        }
+
+        .live-card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Modern Tables */
+        .live-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+        }
+
+        .live-table th {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 8px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: right;
+            background: #f8fafc;
+        }
+
+        .live-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: right;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        .live-table th:first-child, .live-table td:first-child {
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        .live-table tr.active-batter {
+            background-color: #f0f7ff;
+        }
+
+        .live-table tr.active-batter td {
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .batter-striker-icon {
+            color: var(--gold);
+            margin-left: 4px;
+        }
+
+        /* Ball Timeline Bubbles */
+        .timeline-bubble {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+            margin: 2px;
+        }
+
+        .timeline-bubble.f { background: #fef3c7; color: #92400e; border-color: #f59e0b; font-weight: 800; }
+        .timeline-bubble.s { background: #dbeafe; color: #1e40af; border-color: #3b82f6; font-weight: 800; }
+        .timeline-bubble.w { background: #fee2e2; color: #991b1b; border-color: #ef4444; font-weight: 800; }
+        .timeline-bubble.x { background: #f3e8ff; color: #6b21a8; border-color: #a855f7; }
+
+        /* Fullscreen TV Mode */
+        :fullscreen body {
+            background-color: #060b17;
+        }
+        :fullscreen .match-hero-card {
+            border-radius: 0;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body class="citpl-app">
+
+    <!-- 1. TOP BAR -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div>
+                <i class="fas fa-phone me-1"></i> +91 9414200619 &nbsp;&nbsp;
+                <i class="fas fa-envelope me-1"></i> citpl@cit.ac.in &nbsp;&nbsp;
+                <a href="https://citabu.ac.in/" target="_blank"><i class="fas fa-globe me-1"></i> CIT Abu Road</a>
+                &nbsp;&nbsp;
+                <span class="open-now-badge me-2 ms-1">CITPL 2026 LIVE MATCH CENTER</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="scorekeeper.html" class="text-warning fw-bold"><i class="fas fa-edit me-1"></i> Umpire Scorer Console</a>
+                <a href="matches.html" class="text-white"><i class="fas fa-calendar-alt me-1"></i> Match Schedule</a>
+                <a href="../index.html" class="text-white"><i class="fas fa-home me-1"></i> Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. NAVBAR -->
+    <nav class="live-navbar">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <a href="../index.html" class="text-white text-decoration-none d-flex align-items-center gap-2">
+                    <img src="../assets/citpl-logo.png" alt="CITPL Logo" class="cit-logo" style="width:40px;height:40px;border-radius:6px;">
+                    <div>
+                        <div style="font-family:'Barlow Condensed', sans-serif; font-size:1.5rem; font-weight:700; line-height:1;">CITPL 2026 MATCH CENTER</div>
+                        <div style="font-size:0.75rem; color:#cbd5e1;">Official Public Broadcast & Scorecard</div>
+                    </div>
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="live-pulse-badge">
+                    <span class="live-dot"></span> LIVE ON AIR
+                </span>
+                <button class="btn btn-sm btn-outline-light d-none d-md-inline-flex align-items-center gap-1" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i> TV Presentation Mode
+                </button>
+                <button class="btn btn-sm btn-light text-primary fw-bold" onclick="loadData(true)">
+                    <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh Data
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. MAIN LIVE CONTAINER -->
+    <main class="container-fluid px-3 px-md-4 py-4" style="max-width: 1240px;">
+        
+        <!-- Live Match Hero Broadcast Card -->
+        <div class="match-hero-card" id="heroCard">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div>
+                    <span class="badge bg-primary px-3 py-2 fs-6 me-2" id="inningsBadge">1st Innings</span>
+                    <span class="text-light small" id="tossInfoText">Loading toss details...</span>
+                </div>
+                <div class="text-end">
+                    <span class="text-secondary small"><i class="fas fa-map-marker-alt text-danger me-1"></i> CIT Main Cricket Ground, Abu Road</span>
+                </div>
+            </div>
+
+            <div class="row align-items-center g-3 my-2">
+                <div class="col-lg-7">
+                    <div class="team-title text-warning" id="battingTeamTitle">Loading Match...</div>
+                    <div class="d-flex align-items-baseline">
+                        <div class="score-hero-display" id="heroScore">0 - 0</div>
+                        <div class="overs-display" id="heroOvers">(0.0 ov)</div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                        <div class="metric-pill">
+                            <i class="fas fa-tachometer-alt text-info"></i> Current Run Rate: <strong class="text-white ms-1" id="crrVal">0.00</strong>
+                        </div>
+                        <div class="metric-pill" id="targetPill" style="display: none;">
+                            <i class="fas fa-bullseye text-warning"></i> Target: <strong class="text-white ms-1" id="targetVal">0</strong>
+                        </div>
+                        <div class="metric-pill" id="rrrPill" style="display: none;">
+                            <i class="fas fa-clock text-danger"></i> Required Run Rate: <strong class="text-white ms-1" id="rrrVal">0.00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Banner for Chase -->
+            <div class="target-box" id="chaseBanner" style="display: none;">
+                <div id="chaseText">Team requires runs to win</div>
+                <div class="badge bg-warning text-dark px-2 py-1" id="chaseRRR">RRR: 0.00</div>
+            </div>
+        </div>
+
+        <!-- Match Result Banner (shown when match completes) -->
+        <div id="matchResultBanner" class="alert alert-success fw-bold fs-5 text-center rounded-3 shadow-sm" style="display:none; border-left: 5px solid #22c55e;"></div>
+
+        <!-- Live Tabs Navigation -->
+        <div class="live-tabs">
+            <button class="live-tab-btn active" onclick="switchTab('score', this)">
+                <i class="fas fa-clipboard-list"></i> Full Scorecard
+            </button>
+            <button class="live-tab-btn" onclick="switchTab('overs', this)">
+                <i class="fas fa-history"></i> Over Timeline
+            </button>
+            <button class="live-tab-btn" onclick="switchTab('info', this)">
+                <i class="fas fa-info-circle"></i> Match Information
+            </button>
+        </div>
+
+        <!-- TAB 1: FULL SCORECARD -->
+        <div id="tab-score" class="tab-content-area">
+            <div class="row g-4">
+                <!-- Left: Batting Card -->
+                <div class="col-lg-7">
+                    <div class="live-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="live-card-title"><i class="fas fa-running text-primary"></i> Batting Scorecard</h3>
+                            <span class="badge bg-light text-dark border" id="battingTeamBadge">Batting</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="live-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45%;">Batter</th>
+                                        <th>R</th>
+                                        <th>B</th>
+                                        <th>4s</th>
+                                        <th>6s</th>
+                                        <th>SR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="liveBatsmanTable">
+                                    <tr><td colspan="6" class="text-center py-3 text-muted">Awaiting match data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Extras & Total Card -->
+                    <div class="live-card bg-light">
+                        <div class="row text-center g-2">
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">Total Runs</div>
+                                <div class="fs-4 fw-bold text-primary" id="cardTotalRuns">0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">Wickets Down</div>
+                                <div class="fs-4 fw-bold text-danger" id="cardTotalWkts">0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">Overs Completed</div>
+                                <div class="fs-4 fw-bold text-dark" id="cardTotalOvers">0.0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">Current Run Rate</div>
+                                <div class="fs-4 fw-bold text-success" id="cardCRR">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Bowling & Fall of Wickets -->
+                <div class="col-lg-5">
+                    <!-- Bowling Card -->
+                    <div class="live-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="live-card-title"><i class="fas fa-baseball-ball text-danger"></i> Bowling Figures</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="live-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45%;">Bowler</th>
+                                        <th>O</th>
+                                        <th>M</th>
+                                        <th>R</th>
+                                        <th>W</th>
+                                        <th>ER</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="liveBowlerTable">
+                                    <tr><td colspan="6" class="text-center py-3 text-muted">Awaiting match data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Fall of Wickets Card -->
+                    <div class="live-card">
+                        <h3 class="live-card-title mb-3"><i class="fas fa-chart-line text-info"></i> Fall of Wickets</h3>
+                        <div id="liveFowContainer" class="d-flex flex-wrap gap-2">
+                            <span class="text-muted small">No wickets fallen yet.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: OVER TIMELINE -->
+        <div id="tab-overs" class="tab-content-area" style="display: none;">
+            <div class="live-card">
+                <h3 class="live-card-title mb-3"><i class="fas fa-history text-primary"></i> Current Over Deliveries</h3>
+                <div class="p-3 bg-light rounded-3 d-flex flex-wrap gap-2 align-items-center" id="liveTimelineBox">
+                    <span class="text-muted">Start of current over.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: MATCH INFO -->
+        <div id="tab-info" class="tab-content-area" style="display: none;">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="live-card">
+                        <h3 class="live-card-title mb-3"><i class="fas fa-info-circle text-primary"></i> Match Details</h3>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr><td class="text-muted fw-bold">Tournament</td><td class="fw-bold text-primary">CIT Premier League (CITPL) 2026</td></tr>
+                                <tr><td class="text-muted fw-bold">Venue</td><td>CIT Main Cricket Stadium, Abu Road, Rajasthan</td></tr>
+                                <tr><td class="text-muted fw-bold">Match Format</td><td>Limited Overs Cricket (CITPL Official Tournament Rules)</td></tr>
+                                <tr><td class="text-muted fw-bold">Toss Result</td><td id="infoToss">Toss update pending</td></tr>
+                                <tr><td class="text-muted fw-bold">Live Status</td><td><span class="badge bg-success">Official Scorer Connected & Active</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="live-card">
+                        <h3 class="live-card-title mb-3"><i class="fas fa-users-cog text-success"></i> Tournament Committee</h3>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr><td class="text-muted fw-bold">Organized By</td><td>Sports Council, Chartered Institute of Technology</td></tr>
+                                <tr><td class="text-muted fw-bold">Official Umpires</td><td>CITPL Senior Umpires Panel</td></tr>
+                                <tr><td class="text-muted fw-bold">Live Broadcast Engine</td><td>SmartLib AI Match Scoring System</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content-area').forEach(function(d){ d.style.display = 'none'; });
+            document.querySelectorAll('.live-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+            var target = document.getElementById('tab-' + tabId);
+            if(target) target.style.display = 'block';
+            if(el) el.classList.add('active');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function(){});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function loadData(manual) {
+            if(manual) {
+                var icon = document.getElementById('refreshIcon');
+                if(icon) icon.classList.add('fa-spin');
+                setTimeout(function(){ if(icon) icon.classList.remove('fa-spin'); }, 600);
+            }
+
+            var data = localStorage.getItem('CITPL_SCORE');
+            if(data) {
+                var state = JSON.parse(data);
+                
+                // Match Header
+                var host = state.match.hostTeam || "Host Team";
+                var visitor = state.match.visitorTeam || "Visitor Team";
+                var tossText = state.match.tossWon === 'host' ? host : visitor;
+                document.getElementById('tossInfoText').innerText = `${tossText} won the toss and opted to ${state.match.optedTo} first.`;
+                document.getElementById('infoToss').innerText = `${tossText} opted to ${state.match.optedTo} first.`;
+
+                // Batting Team & Innings
+                var batTeam = state.innings.battingTeam || host;
+                document.getElementById('battingTeamTitle').innerText = batTeam;
+                document.getElementById('battingTeamBadge').innerText = batTeam;
+                document.getElementById('inningsBadge').innerText = `${state.innings.inningNumber}${state.innings.inningNumber === 2 ? 'nd' : 'st'} Innings`;
+
+                // Overs and Score
+                var balls = state.innings.balls || 0;
+                var runs = state.innings.runs || 0;
+                var wkts = state.innings.wickets || 0;
+                var overStr = Math.floor(balls / 6) + '.' + (balls % 6);
+
+                document.getElementById('heroScore').innerText = `${runs} - ${wkts}`;
+                document.getElementById('heroOvers').innerText = `(${overStr} / ${state.match.overs || 16} ov)`;
+                document.getElementById('cardTotalRuns').innerText = runs;
+                document.getElementById('cardTotalWkts').innerText = wkts;
+                document.getElementById('cardTotalOvers').innerText = overStr;
+
+                // CRR
+                var crr = balls > 0 ? (runs * 6 / balls).toFixed(2) : "0.00";
+                document.getElementById('crrVal').innerText = crr;
+                document.getElementById('cardCRR').innerText = crr;
+
+                // 2nd Innings Target & RRR
+                if(state.innings.inningNumber === 2 && state.innings.target > 0) {
+                    var tg = state.innings.target;
+                    var maxBalls = (state.match.overs || 16) * 6;
+                    var ballsLeft = maxBalls - balls;
+                    var runsNeeded = tg - runs;
+                    var rrr = ballsLeft > 0 ? (runsNeeded * 6 / ballsLeft).toFixed(2) : "-";
+
+                    document.getElementById('targetPill').style.display = 'inline-flex';
+                    document.getElementById('rrrPill').style.display = 'inline-flex';
+                    document.getElementById('targetVal').innerText = tg;
+                    document.getElementById('rrrVal').innerText = rrr;
+
+                    var chaseBanner = document.getElementById('chaseBanner');
+                    chaseBanner.style.display = 'flex';
+                    document.getElementById('chaseText').innerText = `${batTeam} need ${runsNeeded} runs in ${ballsLeft} balls to win.`;
+                    document.getElementById('chaseRRR').innerText = `RRR: ${rrr}`;
+                } else {
+                    document.getElementById('targetPill').style.display = 'none';
+                    document.getElementById('rrrPill').style.display = 'none';
+                    document.getElementById('chaseBanner').style.display = 'none';
+                }
+
+                // Batsman Table
+                var bHtml = '';
+                if(state.batters && state.batters.length) {
+                    state.batters.forEach(function(b) {
+                        if(b.balls > 0 || b.active) {
+                            var sr = b.balls > 0 ? ((b.runs / b.balls) * 100).toFixed(1) : "0.0";
+                            var activeClass = b.active ? 'active-batter' : '';
+                            var statusText = b.out ? '<span class="text-danger small">out</span>' : (b.active ? '<span class="text-success small">batting</span>' : '<span class="text-muted small">not out</span>');
+                            var star = b.active ? '<span class="batter-striker-icon">🏏</span>' : '';
+                            bHtml += `
+                                <tr class="${activeClass}">
+                                    <td>
+                                        <div><strong>${b.name}</strong> ${star}</div>
+                                        <div>${statusText}</div>
+                                    </td>
+                                    <td><strong>${b.runs}</strong></td>
+                                    <td>${b.balls}</td>
+                                    <td>${b.fours || 0}</td>
+                                    <td>${b.sixes || 0}</td>
+                                    <td>${sr}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+                } else {
+                    bHtml = '<tr><td colspan="6" class="text-center py-3 text-muted">No batsmen recorded.</td></tr>';
+                }
+                document.getElementById('liveBatsmanTable').innerHTML = bHtml;
+
+                // Bowler Table
+                var bowHtml = '';
+                if(state.bowlers && state.bowlers.length) {
+                    state.bowlers.forEach(function(bw) {
+                        if(bw.balls > 0 || bw.active) {
+                            var bwOverStr = Math.floor(bw.balls / 6) + '.' + (bw.balls % 6);
+                            var er = bw.balls > 0 ? (bw.runs / (bw.balls / 6)).toFixed(1) : "0.0";
+                            bowHtml += `
+                                <tr>
+                                    <td><strong>${bw.name}</strong></td>
+                                    <td>${bwOverStr}</td>
+                                    <td>${bw.maidens || 0}</td>
+                                    <td><strong>${bw.runs || 0}</strong></td>
+                                    <td><strong class="text-danger">${bw.wickets || 0}</strong></td>
+                                    <td>${er}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+                } else {
+                    bowHtml = '<tr><td colspan="6" class="text-center py-3 text-muted">No bowlers recorded.</td></tr>';
+                }
+                document.getElementById('liveBowlerTable').innerHTML = bowHtml;
+
+                // Fall of Wickets
+                var fowHtml = '';
+                if(state.fow && state.fow.length) {
+                    state.fow.forEach(function(f, idx) {
+                        fowHtml += `<span class="badge bg-light text-dark border p-2">${idx + 1}-${f.score} (${f.name}, ${f.over} ov)</span>`;
+                    });
+                } else {
+                    fowHtml = '<span class="text-muted small">No wickets fallen yet.</span>';
+                }
+                document.getElementById('liveFowContainer').innerHTML = fowHtml;
+
+                // Timeline Over
+                var timelineBox = document.getElementById('liveTimelineBox');
+                if(state.timeline && state.timeline.length) {
+                    timelineBox.innerHTML = state.timeline.map(function(t) {
+                        return `<span class="timeline-bubble ${t.c || ''}">${t.l || t}</span>`;
+                    }).join("");
+                } else {
+                    timelineBox.innerHTML = '<span class="text-muted">Start of current over.</span>';
+                }
+
+                // Show Match Result Banner if complete
+                var resultBanner = document.getElementById('matchResultBanner');
+                if(state.match.isComplete) {
+                    if(resultBanner) {
+                        resultBanner.style.display = 'block';
+                        var resultText = state.match.resultText || 'Match Completed';
+                        resultBanner.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2 flex-wrap"><i class="fas fa-trophy text-warning fs-4"></i><strong>' + resultText + '</strong><a href="points-table.html" class="btn btn-sm btn-outline-primary rounded-pill ms-2"><i class="fas fa-table me-1"></i>Points Table</a></div>';
+                    }
+                    // Update LIVE badge to COMPLETED
+                    var liveBadge = document.querySelector('.live-pulse-badge');
+                    if(liveBadge) {
+                        liveBadge.style.background = '#22c55e';
+                        liveBadge.style.animation = 'none';
+                        liveBadge.innerHTML = '<i class="fas fa-check-circle"></i> MATCH COMPLETED';
+                    }
+                } else if(resultBanner) {
+                    resultBanner.style.display = 'none';
+                }
+            }
+        }
+
+
+
+        // Initial Load and Cross-Tab Real-Time Sync
+        loadData();
+        window.addEventListener("storage", function(e) {
+            if(e.key === 'CITPL_SCORE') loadData();
+        });
+
+        // Periodic check in case same tab updates
+        setInterval(function(){ loadData(); }, 1500);
+    </script>
+    <script src="../js/app-shell.js"></script>
+</body>
+</html>

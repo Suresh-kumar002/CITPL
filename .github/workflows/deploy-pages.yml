@@ -1,0 +1,60 @@
+name: Deploy CITPL to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check deployment prerequisites
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = "preview/index.html";
+
+          if (!fs.existsSync(path)) {
+            console.error(`Deployment blocked: ${path} is missing.`);
+            process.exit(1);
+          }
+
+          const preview = fs.readFileSync(path, "utf8");
+          if (/<(?:script|form|input|button)\b/i.test(preview)) {
+            console.error("Deployment blocked: preview must remain static and read-only.");
+            process.exit(1);
+          }
+          if (/\b(?:password|apiKey|private_key)\s*[:=]\s*["'][^"']+["']/i.test(preview)) {
+            console.error("Deployment blocked: credential-like values must not be published.");
+            process.exit(1);
+          }
+          NODE
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

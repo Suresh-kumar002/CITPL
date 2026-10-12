@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Registration (₹50) - CIT Premier League 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css?v=20261010">
+    <style>
+        .photo-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            position: relative;
+        }
+        .photo-upload-area:hover {
+            border-color: #0284c7;
+            background: #f0f9ff;
+        }
+        .photo-upload-area.has-photo {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            padding: 10px;
+        }
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #16a34a;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: none;
+        }
+        .photo-upload-area.has-photo .photo-preview {
+            display: inline-block;
+        }
+        .photo-upload-area.has-photo .upload-placeholder {
+            display: none;
+        }
+        .upload-placeholder i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        .photo-remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .photo-upload-area.has-photo .photo-remove-btn {
+            display: flex;
+        }
+        .photo-name-badge {
+            display: none;
+            margin-top: 8px;
+        }
+        .photo-upload-area.has-photo .photo-name-badge {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="citpl-app">
+    <!-- Top Bar -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center gap-2">
+                <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='../index.html'" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </button>
+                <span>
+                    <i class="fas fa-phone"></i> 9414200619 &nbsp;&nbsp;
+                    <i class="fas fa-envelope"></i> citpl@cit.ac.in &nbsp;&nbsp;
+                    <a href="https://citabu.ac.in/" target="_blank"><i class="fas fa-globe"></i> CIT Abu Road</a>
+                </span>
+            </div>
+            <div>
+                <a href="login.html">Log In</a> | <a href="../index.html">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2 sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html">
+                <img src="../assets/citpl-logo.png" alt="CITPL Logo" class="cit-logo">
+                <div>
+                    <div class="institute-title">सीआईटी प्रीमियर लीग 2026</div>
+                    <div class="institute-subtitle">Player Registration Portal</div>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="../index.html" class="btn btn-outline-primary btn-sm"><i class="fas fa-home me-1"></i> Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-primary text-white p-4 rounded-top-4 text-center">
+                        <h3 class="fw-bold mb-1"><i class="fas fa-id-card me-2"></i> CITPL 2026 Player Registration</h3>
+                        <p class="mb-0 text-light small">Fill your details, upload your photo & ₹50 registration payment reference</p>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+
+                        <div id="regSuccessAlert" class="alert alert-success d-none mb-4">
+                            <i class="fas fa-check-circle me-2"></i> Registration Submitted Successfully! Your Registration ID is <strong id="assignedRegId"></strong>. Admin will verify your payment shortly.
+                        </div>
+
+                        <form id="playerRegistrationForm" onsubmit="handleRegistrationSubmit(event)">
+                            
+                            <!-- Player Photo Upload -->
+                            <h5 class="fw-bold text-primary mb-3"><i class="fas fa-camera me-2"></i> Your Photo</h5>
+                            <div class="mb-4">
+                                <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('playerPhotoInput').click()">
+                                    <button type="button" class="photo-remove-btn" onclick="removePlayerPhoto(event)" title="Remove Photo">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <div class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt d-block"></i>
+                                        <h6 class="fw-bold text-secondary mb-1">Upload Your Photo</h6>
+                                        <p class="text-muted small mb-0">Click here to select a photo (JPG, PNG - Max 2MB)</p>
+                                        <p class="text-muted small mb-0">This will be your player profile photo</p>
+                                    </div>
+                                    <img id="photoPreview" class="photo-preview" alt="Player Photo">
+                                    <div class="photo-name-badge">
+                                        <span class="badge bg-success px-3 py-2" id="photoFileName"><i class="fas fa-check-circle me-1"></i> Photo uploaded</span>
+                                    </div>
+                                </div>
+                                <input type="file" id="playerPhotoInput" class="d-none" accept="image/jpeg,image/png,image/webp" onchange="handlePlayerPhotoUpload(event)">
+                            </div>
+
+                            <h5 class="fw-bold text-primary mb-3"><i class="fas fa-user me-2"></i> Personal & Academic Details</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Full Name *</label>
+                                    <input type="text" id="regName" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Mobile Number *</label>
+                                    <input type="tel" id="regMobile" class="form-control" placeholder="10 digit mobile" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">College Email *</label>
+                                    <input type="email" id="regEmail" class="form-control" placeholder="student@cit.ac.in" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Create Password *</label>
+                                    <input type="password" id="regPass" class="form-control" placeholder="Set password for login" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Branch *</label>
+                                    <select id="regBranch" class="form-select" required>
+                                        <option value="CSE">CSE</option>
+                                        <option value="AI&DS">AI & DS</option>
+                                        <option value="ECE">ECE</option>
+                                        <option value="MECH">Mechanical</option>
+                                        <option value="CIVIL">Civil</option>
+                                        <option value="EE">Electrical</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Semester *</label>
+                                    <select id="regSem" class="form-select" required>
+                                        <option value="2nd">2nd Sem</option>
+                                        <option value="4th" selected>4th Sem</option>
+                                        <option value="6th">6th Sem</option>
+                                        <option value="8th">8th Sem</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold text-primary mb-3"><i class="fas fa-baseball-ball me-2"></i> Cricket Playing Skills</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Primary Playing Role *</label>
+                                    <select id="regRole" class="form-select" required>
+                                        <option value="ALL_ROUNDER">All-Rounder</option>
+                                        <option value="BATTER">Batter</option>
+                                        <option value="BOWLER">Bowler</option>
+                                        <option value="WICKET_KEEPER">Wicket Keeper</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Auction Category Preference</label>
+                                    <select id="regCategory" class="form-select">
+                                        <option value="Category A">Category A (Base ₹500)</option>
+                                        <option value="Category B">Category B (Base ₹300)</option>
+                                        <option value="Category C">Category C (Base ₹300)</option>
+                                        <option value="Category D" selected>Category D (Base ₹200)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold text-primary mb-3"><i class="fas fa-qrcode me-2"></i> Registration Fee Payment (₹50)</h5>
+                            <div class="card bg-light border-primary p-3 mb-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4 text-center border-end">
+                                        <div class="bg-white p-2 rounded d-inline-block shadow-sm mb-2">
+                                            <i class="fas fa-qrcode display-4 text-primary"></i>
+                                        </div>
+                                        <div class="fw-bold text-dark">UPI ID: citpl@upi</div>
+                                        <small class="text-muted">Scan & Pay ₹50 Entry Fee</small>
+                                    </div>
+                                    <div class="col-md-8 ps-md-4 mt-3 mt-md-0">
+                                        <label class="form-label fw-semibold">UPI Transaction Ref / UTR No. *</label>
+                                        <input type="text" id="regTxnId" class="form-control" placeholder="e.g. 409875123987" required>
+                                        <small class="text-muted d-block mt-1">Enter the 12-digit UPI reference number after paying ₹50.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow">
+                                <i class="fas fa-paper-plane me-2"></i> Submit Registration & Pay ₹50
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-section py-4">
+        <div class="container text-center">
+            <p class="mb-0 text-muted small">&copy; 2026 CIT Premier League Platform, Chartered Institute of Technology.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/csv-manager.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/app-shell.js"></script>
+
+    <script>
+        // Player Photo Upload Handler
+        let playerPhotoData = '';
+
+        function handlePlayerPhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Photo size must be less than 2MB. Please choose a smaller file.');
+                event.target.value = '';
+                return;
+            }
+
+            // Validate file type
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                alert('Please upload a JPG, PNG, or WebP image only.');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                playerPhotoData = e.target.result;
+                const preview = document.getElementById('photoPreview');
+                const uploadArea = document.getElementById('photoUploadArea');
+                const fileName = document.getElementById('photoFileName');
+
+                preview.src = playerPhotoData;
+                uploadArea.classList.add('has-photo');
+                fileName.innerHTML = `<i class="fas fa-check-circle me-1"></i> ${file.name}`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePlayerPhoto(event) {
+            event.stopPropagation();
+            playerPhotoData = '';
+            const preview = document.getElementById('photoPreview');
+            const uploadArea = document.getElementById('photoUploadArea');
+            const fileInput = document.getElementById('playerPhotoInput');
+            
+            preview.src = '';
+            uploadArea.classList.remove('has-photo');
+            fileInput.value = '';
+        }
+
+        // Override registration submit to include photo
+        const originalSubmit = window.handleRegistrationSubmit;
+        window.handleRegistrationSubmit = function(e) {
+            if (e) e.preventDefault();
+            const name = document.getElementById("regName")?.value.trim();
+            const mobile = document.getElementById("regMobile")?.value.trim();
+            const email = document.getElementById("regEmail")?.value.trim();
+            const password = document.getElementById("regPass")?.value.trim();
+            const branch = document.getElementById("regBranch")?.value;
+            const sem = document.getElementById("regSem")?.value;
+            const role = document.getElementById("regRole")?.value;
+            const category = document.getElementById("regCategory")?.value;
+            const txnId = document.getElementById("regTxnId")?.value.trim();
+
+            if (!name || !mobile || !email || !password || !txnId) {
+                alert("Please fill all required fields including UPI Reference Transaction ID.");
+                return;
+            }
+
+            if (!window.citplDB) return;
+            const newPlayer = window.citplDB.registerPlayer({
+                name, mobile, email, password, branch, sem, role, category, 
+                transactionId: txnId,
+                photo: playerPhotoData
+            });
+
+            // Auto login
+            window.citplDB.login(email, password);
+
+            const alertBox = document.getElementById("regSuccessAlert");
+            if (alertBox) {
+                document.getElementById("assignedRegId").innerText = newPlayer.registrationId;
+                alertBox.classList.remove("d-none");
+                alertBox.scrollIntoView({ behavior: "smooth" });
+            } else {
+                alert(`Registration successful! Your Player Pass ID is ${newPlayer.registrationId}. Payment reference submitted.`);
+            }
+
+            if (typeof renderAuthUI === 'function') renderAuthUI();
+        };
+    </script>
+</body>
+
+</html>

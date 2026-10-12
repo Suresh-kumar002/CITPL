@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIT Premier League (CITPL) 2026 - Official Cricket League Platform</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom SmartLib Styled CSS -->
+    <link rel="stylesheet" href="css/style.css?v=20261010">
+</head>
+
+<body class="citpl-app">
+
+    <!-- 1. TOP BAR -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center gap-3">
+                <span><i class="fas fa-phone me-1"></i> 9414200619</span>
+                <span><i class="fas fa-envelope me-1"></i> citpl@cit.ac.in</span>
+                <span class="open-now-badge ms-1"><i class="fas fa-bolt me-1"></i> SEASON 2026 LIVE</span>
+            </div>
+            <div class="d-flex align-items-center gap-3" id="topBarAuthContainer">
+                <!-- Injected dynamically by renderAuthUI() in app.js -->
+                <a href="pages/login.html" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold"><i class="fas fa-sign-in-alt me-1"></i> Log In</a>
+                <a href="pages/register.html" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold text-dark"><i class="fas fa-user-plus me-1"></i> Register (₹50)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN NAVIGATION -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2 sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="assets/citpl-logo.png" alt="CITPL Logo" class="cit-logo">
+                <div>
+                    <div class="institute-title">सीआईटी प्रीमियर लीग 2026</div>
+                    <div class="institute-subtitle">CIT Premier League 2026 Official Platform</div>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item"><a class="nav-link active text-primary fw-bold" href="index.html"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger fw-bold" href="pages/live.html"><span class="live-pulse me-1"></span> Live Score</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" href="pages/teams.html"><i class="fas fa-users me-1"></i> Teams</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" href="pages/matches.html"><i class="fas fa-calendar-alt me-1"></i> Matches</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" href="pages/points-table.html"><i class="fas fa-table me-1"></i> Points Table</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" href="pages/players.html"><i class="fas fa-user-ninja me-1"></i> Players</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold text-success" href="pages/register.html"><i class="fas fa-user-plus me-1"></i> Register</a></li>
+
+                    <!-- Admin-only portals (shown dynamically by app.js if logged in as admin) -->
+                    <li class="nav-item dropdown custom-dropdown d-none" id="adminPortalsDropdown">
+                        <a class="nav-link dropdown-toggle fw-semibold text-danger" href="#" id="portalsDropdown"><i class="fas fa-user-shield me-1"></i> Admin</a>
+                        <ul class="dropdown-menu shadow border-0 dropdown-menu-end" aria-labelledby="portalsDropdown">
+                            <li><a class="dropdown-item fw-semibold" href="pages/admin.html"><i class="fas fa-cogs me-2 text-danger"></i> Admin Dashboard</a></li>
+                            <li><a class="dropdown-item fw-semibold" href="pages/auction.html"><i class="fas fa-gavel me-2 text-warning"></i> Auction Control</a></li>
+                            <li><a class="dropdown-item fw-semibold" href="pages/scorekeeper.html"><i class="fas fa-edit me-2 text-info"></i> Scorekeeper Panel</a></li>
+                            <li><a class="dropdown-item fw-semibold" href="pages/captain.html"><i class="fas fa-crown me-2 text-primary"></i> Captain Portal</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. NEWS TICKER -->
+    <main class="dashboard-wrap">
+        <section class="dashboard-hero" aria-labelledby="dashboardTitle">
+            <div class="dashboard-hero-content">
+                <span class="dashboard-kicker"><i class="fas fa-trophy" aria-hidden="true"></i> CIT PREMIER LEAGUE 2026</span>
+                <h1 id="dashboardTitle">Cricket, community, and campus pride.</h1>
+                <p id="dashboardWelcome">Welcome to CITPL 2026. Follow live matches, explore teams and players, or join the league.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="pages/live.html" class="btn btn-light px-4 py-2"><i class="fas fa-tower-broadcast me-2"></i>Live match</a>
+                    <a href="pages/register.html" class="btn btn-outline-light px-4 py-2"><i class="fas fa-user-plus me-2"></i>Join CITPL</a>
+                </div>
+            </div>
+            <div class="dashboard-hero-mark">
+                <img src="assets/citpl-logo.png" alt="CIT Premier League crest">
+            </div>
+        </section>
+
+        <section class="dashboard-stats" aria-label="League at a glance">
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon"><i class="fas fa-shield-halved" aria-hidden="true"></i></span>
+                <span><span class="dashboard-stat-label">Teams</span><strong class="dashboard-stat-value" id="dashboardTeamCount">0</strong></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon"><i class="fas fa-users" aria-hidden="true"></i></span>
+                <span><span class="dashboard-stat-label">Approved players</span><strong class="dashboard-stat-value" id="dashboardPlayerCount">0</strong></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon"><i class="fas fa-calendar-days" aria-hidden="true"></i></span>
+                <span><span class="dashboard-stat-label">Scheduled matches</span><strong class="dashboard-stat-value" id="dashboardMatchCount">0</strong></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon"><i class="fas fa-bolt" aria-hidden="true"></i></span>
+                <span><span class="dashboard-stat-label">Season status</span><strong class="dashboard-stat-value" id="dashboardSeasonStatus">Registration</strong></span>
+            </div>
+        </section>
+
+        <div class="dashboard-content-grid">
+            <section class="dashboard-panel" aria-labelledby="livePanelTitle">
+                <div class="dashboard-panel-head">
+                    <h2 id="livePanelTitle"><i class="fas fa-tower-broadcast text-primary me-2" aria-hidden="true"></i>Live match center</h2>
+                    <span class="badge rounded-pill text-bg-light text-secondary" id="dashboardLiveBadge">MATCH CENTER</span>
+                </div>
+                <div class="dashboard-panel-body" id="dashboardLiveContent" aria-live="polite">
+                    <div class="dashboard-empty">Live score updates will appear here when the league starts a match.</div>
+                </div>
+                <div class="px-3 pb-3"><a href="pages/live.html" class="btn btn-primary w-100"><i class="fas fa-arrow-right me-2" aria-hidden="true"></i>Open scorecard</a></div>
+            </section>
+
+            <section class="dashboard-panel" aria-labelledby="leaguePanelTitle">
+                <div class="dashboard-panel-head">
+                    <h2 id="leaguePanelTitle"><i class="fas fa-star text-warning me-2" aria-hidden="true"></i>League updates</h2>
+                    <span class="small text-secondary">Season 2026</span>
+                </div>
+                <div class="dashboard-panel-body">
+                    <div class="dashboard-team-line"><strong>Season status</strong><span class="badge rounded-pill text-bg-primary" id="dashboardSeasonStatusChip">Registration</span></div>
+                    <div class="dashboard-team-line"><strong>Player auction</strong><span class="text-secondary fw-semibold" id="dashboardAuctionStatus">Auction not started</span></div>
+                    <a href="pages/auction.html" class="btn btn-outline-primary w-100 mt-3"><i class="fas fa-gavel me-2" aria-hidden="true"></i>Visit auction room</a>
+                </div>
+            </section>
+        </div>
+
+        <section id="dashboardFeaturesSection" class="mt-5 d-none" aria-labelledby="dashboardFeaturesTitle">
+            <div class="dashboard-section-heading">
+                <div>
+                    <h2 id="dashboardFeaturesTitle">League features & updates</h2>
+                    <p>News and features published by the CITPL admin team.</p>
+                </div>
+            </div>
+            <div id="dashboardFeaturesList" class="row g-4"></div>
+        </section>
+
+        <section aria-labelledby="shortcutsTitle">
+            <div class="dashboard-section-heading">
+                <div>
+                    <h2 id="shortcutsTitle">Explore the league</h2>
+                    <p>Everything CITPL, just a tap away.</p>
+                </div>
+            </div>
+            <div class="dashboard-shortcuts">
+                <a class="dashboard-shortcut" href="pages/matches.html"><span class="dashboard-shortcut-icon"><i class="fas fa-calendar-days" aria-hidden="true"></i></span><strong>Matches & schedule</strong><span>Fixtures and scorecards</span></a>
+                <a class="dashboard-shortcut" href="pages/teams.html"><span class="dashboard-shortcut-icon"><i class="fas fa-shield-halved" aria-hidden="true"></i></span><strong>Teams & squads</strong><span>Franchises and player rosters</span></a>
+                <a class="dashboard-shortcut" href="pages/points-table.html"><span class="dashboard-shortcut-icon"><i class="fas fa-ranking-star" aria-hidden="true"></i></span><strong>Points table</strong><span>Standings and NRR</span></a>
+                <a class="dashboard-shortcut" href="pages/players.html"><span class="dashboard-shortcut-icon"><i class="fas fa-user-ninja" aria-hidden="true"></i></span><strong>Player profiles</strong><span>Stats and team allocation</span></a>
+                <a class="dashboard-shortcut" href="pages/register.html"><span class="dashboard-shortcut-icon"><i class="fas fa-user-plus" aria-hidden="true"></i></span><strong>Player registration</strong><span>Join the CITPL player pool</span></a>
+                <a class="dashboard-shortcut" href="pages/login.html"><span class="dashboard-shortcut-icon"><i class="fas fa-circle-user" aria-hidden="true"></i></span><strong>My account</strong><span>Sign in to your CITPL portal</span></a>
+            </div>
+        </section>
+    </main>
+
+    <div id="newsTickerSection" class="news-ticker-bg d-flex align-items-center px-4">
+        <div class="latest-news-badge me-3 d-flex align-items-center flex-nowrap">
+            <i class="fas fa-bullhorn me-2"></i> CITPL NEWS
+        </div>
+        <div class="marquee-container flex-grow-1">
+            <div class="marquee-content" id="marqueeText">
+                <span>🏆 CIT Premier League 2026 Registration Open now (Fee: ₹50)</span> •
+                <span>🔴 LIVE MATCH: CIT Warriors 87/4 (9.2 ov) vs Tech Titans (120/6)</span> •
+                <span>🔨 Live Auction active in Auditorium: Lot #14 Karan Patel under the hammer</span> •
+                <span>📊 CIT Warriors leading Points Table with NRR +1.25</span>
+            </div>
+        </div>
+        <div class="ms-3 d-flex gap-2">
+            <button class="btn btn-sm btn-dark" onclick="toggleMarquee()" title="Play/Pause"><i id="playPauseIcon" class="fas fa-pause"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="document.getElementById('newsTickerSection').style.display='none'" title="Close"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- 4. HERO SECTION WITH 5-SLIDE CAROUSEL -->
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="4"></button>
+        </div>
+
+        <div class="carousel-inner">
+            <!-- Slide 1: Welcome -->
+            <div class="carousel-item active hero-slide slide-1">
+                <div class="container px-5 h-100">
+                    <div class="row align-items-center h-100 g-4">
+                        <div class="col-lg-7">
+                            <div class="institute-pill"><i class="fas fa-trophy me-2"></i> Chartered Institute of Technology</div>
+                            <h1 class="hero-title">CIT Premier <span>League 2026</span></h1>
+                            <p class="fs-5 text-light mb-4">PLAY • BID • COMPETE • WIN! Real-time live scoring, IPL-style mobile player auction, team purse management, and cricket statistics.</p>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="pages/live.html" class="btn btn-danger rounded-pill px-4 py-2 fw-bold shadow"><i class="fas fa-tv me-2"></i> Watch Live Match</a>
+                                <a href="pages/register.html" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark shadow"><i class="fas fa-user-plus me-2"></i> Register Now (₹50)</a>
+                            </div>
+                            <div class="quote-box">"Sports do not build character. They reveal it. CIT Premier League brings the ultimate cricket spectacle to Abu Road!"<br><strong>— CITPL Convener Board</strong></div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <img src="assets/citpl-logo.png" style="max-width: 80%; border-radius: 20px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);" alt="CITPL Logo" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Realtime Auction -->
+            <div class="carousel-item hero-slide slide-2">
+                <div class="container px-5 h-100">
+                    <div class="row align-items-center h-100 g-4">
+                        <div class="col-lg-7">
+                            <div class="institute-pill"><i class="fas fa-gavel me-2"></i> IPL-Style Mega Auction</div>
+                            <h1 class="hero-title">Real-Time <span>Mobile Bidding</span></h1>
+                            <p class="fs-5 text-light mb-4">4 Franchise Teams with ₹10,000 Starting Purses compete for star all-rounders, batters, and bowlers. Team Owners bid live from their mobile phones!</p>
+                            <div class="d-flex gap-3">
+                                <a href="pages/auction.html" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark shadow"><i class="fas fa-gavel me-2"></i> Enter Auction Arena</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <div class="card bg-dark text-white p-4 border-warning border-2 rounded-4 shadow-lg">
+                                <div class="badge bg-danger mb-2">NOW ON AUCTION</div>
+                                <h3 class="fw-bold text-warning">Karan Patel</h3>
+                                <p class="text-light fw-bold mb-1">Category A • All-Rounder</p>
+                                <div class="display-6 fw-bold text-success my-2">₹1,600</div>
+                                <p class="small text-info fw-bold">Highest Bidder: Cyber Strikers</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Ball-by-ball scoring -->
+            <div class="carousel-item hero-slide slide-3">
+                <div class="container px-5 h-100">
+                    <div class="row align-items-center h-100 g-4">
+                        <div class="col-lg-7">
+                            <div class="institute-pill"><i class="fas fa-chart-line me-2"></i> Ball-by-Ball Tracking</div>
+                            <h1 class="hero-title">Instant <span>Live Scoring</span></h1>
+                            <p class="fs-5 text-light mb-4">Mobile-friendly scorekeeper control panel updating live boundaries, wickets, extras, net run rates, and scorecard commentary instantly.</p>
+                            <div class="d-flex gap-3">
+                                <a href="pages/live.html" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow"><i class="fas fa-bolt me-2"></i> View Live Scorecard</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <div class="card bg-white text-dark p-4 rounded-4 shadow-lg">
+                                <div class="badge bg-danger rounded-pill px-3 py-1 mb-2">MATCH #05 • LIVE</div>
+                                <h4 class="fw-bold text-dark">CIT Warriors vs Tech Titans</h4>
+                                <div class="display-5 fw-bold text-primary my-2">87 / 4</div>
+                                <p class="mb-0 text-secondary fw-semibold">Overs: 9.2 / 10 • Target: 121</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Points Table & Stats -->
+            <div class="carousel-item hero-slide slide-4">
+                <div class="container px-5 h-100">
+                    <div class="row align-items-center h-100 g-4">
+                        <div class="col-lg-7">
+                            <div class="institute-pill"><i class="fas fa-award me-2"></i> Tournament Leaderboards</div>
+                            <h1 class="hero-title">Points Table & <span>Player Stats</span></h1>
+                            <p class="fs-5 text-light mb-4">Track Orange Cap (Top Run Scorer), Purple Cap (Top Wicket Taker), Net Run Rate (NRR), and player statistics updated after every single over.</p>
+                            <div class="d-flex gap-3">
+                                <a href="pages/points-table.html" class="btn btn-info rounded-pill px-4 py-2 fw-bold text-white shadow"><i class="fas fa-list-ol me-2"></i> View Points Standings</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <div class="card bg-dark text-white p-4 rounded-4 shadow">
+                                <h5 class="text-info fw-bold"><i class="fas fa-fire me-2"></i> Orange Cap Leader</h5>
+                                <h3 class="fw-bold text-warning mb-1">To be announced</h3>
+                                <p class="mb-2 text-light fw-bold">Updated by admin once leaderboard is ready</p>
+                                <span class="badge bg-secondary fw-bold">Admin managed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Registration -->
+            <div class="carousel-item hero-slide slide-5">
+                <div class="container px-5 h-100">
+                    <div class="row align-items-center h-100 g-4">
+                        <div class="col-lg-7">
+                            <div class="institute-pill"><i class="fas fa-user-plus me-2"></i> Join the League</div>
+                            <h1 class="hero-title">Player <span>Registration</span></h1>
+                            <p class="fs-5 text-light mb-4">Register online with college ID details, upload transaction reference for ₹50 entry fee, get approved by admin, and get auctioned into top franchise teams!</p>
+                            <div class="d-flex gap-3">
+                                <a href="pages/register.html" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-dark shadow"><i class="fas fa-arrow-right me-2"></i> Fill Registration Form (₹50)</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <div class="card bg-white text-dark p-4 rounded-4 shadow">
+                                <i class="fas fa-qrcode display-1 text-primary mb-3"></i>
+                                <h5 class="fw-bold">₹50 Registration Fee</h5>
+                                <p class="text-muted small mb-0">UPI Payment & Admin Verification Integrated</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="carousel-control-prev custom-btn" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-control-next custom-btn" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- 5. QUICK ACCESS CARDS FOR PUBLIC USERS -->
+    <section id="leagueQuickAccess" class="py-5 bg-white border-bottom">
+        <div class="container px-4">
+            <div class="text-center mb-4">
+                <span class="text-primary fw-bold text-uppercase">Explore the League</span>
+                <h2 class="fw-bold text-dark mt-1">Everything You Need to Follow CITPL 2026</h2>
+                <div class="divider mx-auto bg-primary mt-2"></div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-danger shadow-sm h-100 p-4 rounded-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-danger text-white p-3 rounded-circle fs-4"><i class="fas fa-tv"></i></div>
+                            <div>
+                                <h5 class="fw-bold text-danger mb-0">Live Match Center</h5>
+                                <small class="text-secondary fw-semibold">Ball-by-Ball Updates</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Watch live scorecard with batsmen stats, bowler economy, required run rate, fall of wickets, and ball-by-ball commentary — all in real time!</p>
+                        <a href="pages/live.html" class="btn btn-danger w-100 rounded-pill fw-bold mt-auto"><i class="fas fa-arrow-right me-1"></i> Watch Live</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-primary shadow-sm h-100 p-4 rounded-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-primary text-white p-3 rounded-circle fs-4"><i class="fas fa-users"></i></div>
+                            <div>
+                                <h5 class="fw-bold text-primary mb-0">Franchise Teams</h5>
+                                <small class="text-secondary fw-semibold">4 Competing Teams</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Explore all 4 franchise teams — CIT Warriors, Tech Titans, Cyber Strikers & Royals Abu Road. View squad, owner info, and team stats.</p>
+                        <a href="pages/teams.html" class="btn btn-primary w-100 rounded-pill fw-bold mt-auto"><i class="fas fa-arrow-right me-1"></i> View Teams</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-success shadow-sm h-100 p-4 rounded-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-success text-white p-3 rounded-circle fs-4"><i class="fas fa-list-ol"></i></div>
+                            <div>
+                                <h5 class="fw-bold text-success mb-0">Points Table</h5>
+                                <small class="text-secondary fw-semibold">Standings & NRR</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Check which team is on top! View wins, losses, Net Run Rate, Orange Cap & Purple Cap holders updated after every match.</p>
+                        <a href="pages/points-table.html" class="btn btn-success w-100 rounded-pill fw-bold mt-auto"><i class="fas fa-arrow-right me-1"></i> View Standings</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-warning shadow-sm h-100 p-4 rounded-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-warning text-dark p-3 rounded-circle fs-4"><i class="fas fa-calendar-alt"></i></div>
+                            <div>
+                                <h5 class="fw-bold text-warning mb-0">Match Schedule</h5>
+                                <small class="text-secondary fw-semibold">Upcoming Fixtures</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Check the full match schedule — upcoming fixtures, past results, venues, and timings for all league and knockout matches.</p>
+                        <a href="pages/matches.html" class="btn btn-warning text-dark w-100 rounded-pill fw-bold mt-auto"><i class="fas fa-arrow-right me-1"></i> View Schedule</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-info shadow-sm h-100 p-4 rounded-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-info text-white p-3 rounded-circle fs-4"><i class="fas fa-user-ninja"></i></div>
+                            <div>
+                                <h5 class="fw-bold text-info mb-0">Player Profiles</h5>
+                                <small class="text-secondary fw-semibold">Stats & Records</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Browse all registered players, their batting/bowling stats, auction prices, team allocation, and individual performance records.</p>
+                        <a href="pages/players.html" class="btn btn-info text-white w-100 rounded-pill fw-bold mt-auto"><i class="fas fa-arrow-right me-1"></i> View Players</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-secondary shadow-sm h-100 p-4 rounded-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-secondary text-white p-3 rounded-circle fs-4"><i class="fas fa-id-card"></i></div>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0">Player Registration</h5>
+                                <small class="text-secondary fw-semibold">₹50 Entry Fee</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Register as a player — fill your college details, select playing role, pay ₹50 via UPI, and enter the auction pool to get drafted!</p>
+                        <a href="pages/register.html" class="btn btn-outline-dark w-100 rounded-pill fw-bold mt-auto"><i class="fas fa-arrow-right me-1"></i> Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. LEADERSHIP & ADMINISTRATION SECTION (SmartLib Standard) -->
+    <section class="leadership-section py-5">
+        <div class="container px-4">
+            <div class="text-center mb-5">
+                <span class="text-primary fw-bold text-uppercase tracking-wide">Administration & Patronage</span>
+                <h2 class="fw-bold text-dark mt-2">Meet Our Tournament Leadership</h2>
+                <div class="divider mx-auto bg-primary mt-2"></div>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <!-- Principal Profile Card -->
+                <div class="col-lg-5 col-md-6">
+                    <div class="card profile-card text-center p-4">
+                        <div class="profile-img-wrapper mx-auto mb-4">
+                            <img src="images/principal.jpg" alt="Dr. Rajneesh Yadav" class="profile-img principal-profile-img shadow">
+                        </div>
+                        <div class="card-body p-0">
+                            <h4 class="fw-bold text-dark mb-1">Dr. Rajneesh Yadav</h4>
+                            <p class="text-primary fw-semibold mb-3">Patron & Principal, CIT Abu Road</p>
+                            <p class="text-muted small mb-4">
+                                "Welcome to CIT Premier League 2026. Sports foster leadership, discipline, and unity among our engineering students. We are proud to launch this digital cricket portal powered by real-time bidding and score tracking."
+                            </p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="mailto:principal@citabu.ac.in" class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-envelope"></i></a>
+                                <a href="tel:+919414200619" class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-phone"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convener Profile Card -->
+                <div class="col-lg-5 col-md-6">
+                    <div class="card profile-card text-center p-4">
+                        <div class="profile-img-wrapper mx-auto mb-4">
+                            <img src="images/RSsir.jpg" alt="Mr R.S Rajput" class="profile-img shadow">
+                        </div>
+                        <div class="card-body p-0">
+                            <h4 class="fw-bold text-dark mb-1">Mr R.S Rajput</h4>
+                            <p class="text-primary fw-semibold mb-3">League Convener & Sports Officer</p>
+                            <p class="text-muted small mb-4">
+                                "Our mission is to give every player a professional tournament experience with category base prices, real-time ball updates, and points table calculation. Wish all teams the best of luck!"
+                            </p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="mailto:sports@citabu.ac.in" class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-envelope"></i></a>
+                                <a href="tel:+919414200619" class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-phone"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. FOOTER SECTION (SmartLib Exact Design) -->
+    <footer class="footer-section">
+        <div class="container px-4 pt-5 pb-4">
+            <div class="row g-4">
+                <!-- Column 1: About -->
+                <div class="col-lg-4 col-md-6 pe-lg-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="assets/citpl-logo.png" alt="Logo" class="cit-logo" style="width: 50px; height: 50px;">
+                        <div>
+                            <h5 class="text-white fw-bold mb-0">CIT Premier League</h5>
+                            <small class="text-info">Official Cricket Portal 2026</small>
+                        </div>
+                    </div>
+                    <p class="footer-text mt-3">
+                        CITPL 2026 is an end-to-end college cricket league platform equipped with real-time bidding auction software, ball-by-ball score tracking, NRR points table, captain team manager, and payment verification.
+                    </p>
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="https://www.facebook.com/citabuinfo/" class="social-icon-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://in.linkedin.com/school/chartered-institute-of-technology-aburoad/" class="social-icon-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.youtube.com/@citaburoad8124" class="social-icon-btn"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.instagram.com/cit_abu/" class="social-icon-btn"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="footer-heading mb-4"><i class="fas fa-link me-2 text-primary"></i>Quick Links</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="pages/live.html"><i class="fas fa-chevron-right me-2 small"></i>Live Scoring</a></li>
+                        <li><a href="pages/matches.html"><i class="fas fa-chevron-right me-2 small"></i>Match Schedule</a></li>
+                        <li><a href="pages/teams.html"><i class="fas fa-chevron-right me-2 small"></i>Franchise Teams</a></li>
+                        <li><a href="pages/points-table.html"><i class="fas fa-chevron-right me-2 small"></i>Points Standings</a></li>
+                        <li><a href="pages/players.html"><i class="fas fa-chevron-right me-2 small"></i>Player Profiles</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: For Players -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading mb-4"><i class="fas fa-cubes me-2 text-primary"></i>For Players</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="pages/register.html"><i class="fas fa-chevron-right me-2 small"></i>₹50 Player Registration</a></li>
+                        <li><a href="pages/login.html"><i class="fas fa-chevron-right me-2 small"></i>Player Login</a></li>
+                        <li><a href="pages/teams.html"><i class="fas fa-chevron-right me-2 small"></i>View My Team</a></li>
+                        <li><a href="pages/points-table.html"><i class="fas fa-chevron-right me-2 small"></i>Tournament Standings</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Contact Us -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading mb-4"><i class="far fa-envelope me-2 text-primary"></i>Contact Us</h5>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="contact-icon-box me-3"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <span class="d-block fw-bold text-white small">ADDRESS</span>
+                            <span class="footer-text small">CIT Sports Ground, Chartered Institute of Technology, Abu Road, Rajasthan</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="contact-icon-box me-3"><i class="fas fa-phone-alt"></i></div>
+                        <div>
+                            <span class="d-block fw-bold text-white small">PHONE</span>
+                            <span class="footer-text small">+91-9414200619</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="contact-icon-box me-3"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <span class="d-block fw-bold text-white small">EMAIL</span>
+                            <span class="footer-text small">citpl@cit.ac.in</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom border-top border-secondary mt-4">
+            <div class="container px-4 py-3">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <p class="mb-0 footer-text small text-center text-md-start">
+                        &copy; 2026 <span class="text-info fw-bold">CITPL Tech Team</span>, Chartered Institute of Technology. All Rights Reserved.
+                    </p>
+                    <a href="#" class="text-muted text-decoration-none small mt-2 mt-md-0">Privacy & Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Search Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title text-primary fw-bold">Search CITPL Database</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group input-group-lg shadow-sm rounded">
+                        <input type="text" class="form-control" placeholder="Search player name, team, registration ID...">
+                        <button class="btn btn-primary text-white fw-bold" type="button">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Smart AI Chatbot -->
+    <div class="chat-bot-btn" id="chatBtn">
+        <div class="chat-tooltip" id="chatTooltip">Hi! Any help?</div>
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div><i class="fas fa-robot me-2"></i> CITPL Smart Assistant</div>
+            <i class="fas fa-times close-chat" id="closeChatBtn" onclick="document.getElementById('chatWindow').classList.remove('active')"></i>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="msg msg-bot">Hello! I am your CIT Premier League AI Assistant. Ask me about Live Scores, Auction Bids, Registrations, or Team Standings! 😊</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type message..." onkeypress="handleEnter(event)">
+            <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/app-shell.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

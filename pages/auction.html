@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#effcfc">
+    <title>CITPL 2026 — Auction Bidding Room</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --coral: #c21870;
+            --pink: #c21870;
+            --yellow: #087d83;
+            --teal: #069494;
+
+            --gold: #087d83;
+            --gold-dark: #069494;
+            --red: #b42342;
+            --green: #069494;
+            --blue: #00F0FF;
+            --accent-pink: #c21870;
+            --bg: #b9d6d6;
+            --card: #e2eeee;
+            --card-hover: rgba(0, 240, 255, 0.16);
+            --border: rgba(6, 148, 148, 0.24);
+            --muted: rgba(23, 59, 64, 0.92);
+            --text: #173b40;
+            color-scheme: light;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Manrope', 'Inter', sans-serif;
+            font-size: 16px;
+            background:
+                radial-gradient(ellipse at 8% 0%, rgba(255, 105, 180, 0.1), transparent 34%),
+                radial-gradient(ellipse at 92% 6%, rgba(0, 240, 255, 0.16), transparent 38%),
+                linear-gradient(180deg, #a9cccc 0%, #bedada 48%, #b3d2d2 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ═══════════════════════ NAV / TOPBAR ═══════════════════════ */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; }
+        .nav-brand .brand-title { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+        .nav-brand .brand-sub { font-size: 0.65rem; color: var(--pink); letter-spacing: 0.08em; font-weight: 600; }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .user-badge {
+            background: rgba(0, 240, 255, 0.18);
+            border: 1px solid rgba(6, 148, 148, 0.3);
+            color: #075e64;
+            font-size: 0.72rem; font-weight: 700;
+            padding: 5px 12px; border-radius: 20px;
+            letter-spacing: 0.04em;
+        }
+        .btn-icon {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 7px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .btn-icon:hover { background: var(--card-hover); color: #fff; }
+
+        /* TABS */
+        .tab-bar {
+            display: flex;
+            background: rgba(6, 148, 148, 0.12);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tab-bar::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            padding: 12px 20px;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em;
+            color: var(--muted);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { color: var(--yellow); border-bottom-color: var(--coral); }
+        .tab-btn:hover:not(.active) { color: var(--text); }
+
+        .tab-pane { display: none; padding: 20px; }
+        .tab-pane.active { display: block; }
+
+        /* ═══════════════════════ OWNER MOBILE CARD ═══════════════════════ */
+        .owner-header {
+            background: linear-gradient(125deg, rgba(255, 255, 255, 0.94), rgba(0, 240, 255, 0.12));
+            border: 1px solid rgba(6, 148, 148, 0.3);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+        .owner-name-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .owner-crown { font-size: 1.5rem; }
+        .owner-team-name { font-size: 1.2rem; font-weight: 800; color: var(--yellow); }
+        .owner-status-pill {
+            font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em;
+            padding: 4px 12px; border-radius: 20px;
+        }
+        .owner-status-pill.live { background: rgba(255, 105, 180, 0.18); color: var(--coral); border: 1px solid rgba(255, 105, 180, 0.4); }
+        .owner-status-pill.paused { background: rgba(0, 240, 255, 0.12); color: var(--yellow); border: 1px solid rgba(0, 240, 255, 0.3); }
+
+        .purse-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .purse-stat {
+            background: rgba(255,255,255,0.82);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .purse-stat .ps-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+        .purse-stat .ps-value { font-size: 1.5rem; font-weight: 800; }
+        .ps-value.green { color: var(--teal); }
+        .ps-value.blue { color: var(--coral); }
+
+        /* Squad list */
+        .squad-section { margin-top: 14px; }
+        .squad-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+        .squad-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .squad-chip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.72rem; font-weight: 600;
+        }
+        .empty-squad { color: var(--muted); font-size: 0.82rem; }
+
+        /* ═══════════════════════ CURRENT LOT CARD ═══════════════════════ */
+        .current-lot-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .lot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.7);
+        }
+        .lot-number { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--coral); }
+        .lot-timer {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: var(--coral);
+            letter-spacing: 0.04em;
+        }
+        .lot-timer.safe { color: var(--teal); }
+        .lot-timer.warn { color: var(--yellow); }
+        .lot-timer.danger { color: var(--coral); animation: t-flash 0.5s infinite; }
+        @keyframes t-flash { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .player-lot-body { display: flex; align-items: center; gap: 16px; padding: 16px 18px; }
+        .player-lot-photo {
+            width: 80px; height: 96px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            flex-shrink: 0;
+        }
+        .player-lot-info { flex: 1; min-width: 0; }
+        .player-lot-cat { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; color: var(--pink); }
+        .player-lot-name { font-size: 1.4rem; font-weight: 800; line-height: 1.1; word-break: break-word; }
+        .player-lot-meta { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+        .player-lot-role {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+            background: rgba(6, 148, 148, 0.2);
+            border: 1px solid rgba(6, 148, 148, 0.4);
+            color: var(--yellow);
+            border-radius: 6px;
+            padding: 3px 8px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        /* Bid row */
+        .bid-row-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-top: 1px solid var(--border);
+        }
+        .bid-stat {
+            padding: 14px 18px;
+        }
+        .bid-stat:first-child { border-right: 1px solid var(--border); }
+        .bid-stat .bs-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+        .bid-stat .bs-value { font-size: 1.6rem; font-weight: 800; color: var(--yellow); }
+        .bid-stat .bs-team { font-size: 0.82rem; font-weight: 700; color: #fff; margin-top: 2px; }
+
+        /* ═══════════════════════ BID BUTTON ═══════════════════════ */
+        .bid-action-section { margin-bottom: 16px; }
+        .bid-button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(110deg, #FF69B4, #00F0FF);
+            color: #071c22;
+            font-size: 1.3rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            letter-spacing: 0.04em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 24px rgba(255, 105, 180, 0.3);
+            animation: bid-pulse 2s infinite;
+        }
+        @keyframes bid-pulse { 0%,100% { box-shadow: 0 4px 24px rgba(255, 105, 180, 0.3); } 50% { box-shadow: 0 4px 36px rgba(0, 240, 255, 0.42); } }
+        .bid-button:disabled {
+            background: rgba(255,255,255,0.08);
+            color: var(--muted);
+            box-shadow: none;
+            animation: none;
+            cursor: not-allowed;
+        }
+        .bid-button.you-winning {
+            background: linear-gradient(110deg, #069494, #00F0FF);
+            color: #071c22;
+            box-shadow: 0 4px 24px rgba(6, 148, 148, 0.35);
+            animation: none;
+        }
+        .bid-msg {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+        .bid-msg.you-winning { color: var(--teal); font-weight: 700; }
+        .bid-msg.outbid { color: var(--coral); font-weight: 700; }
+
+        /* ═══════════════════════ BID HISTORY ═══════════════════════ */
+        .section-title {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+            color: var(--pink);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .bid-history-list { display: flex; flex-direction: column; gap: 8px; }
+        .bid-hist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .bid-hist-item.my-bid {
+            border-color: rgba(6, 148, 148, 0.5);
+            background: rgba(6, 148, 148, 0.14);
+        }
+        .bid-hist-team { font-size: 0.9rem; font-weight: 700; }
+        .bid-hist-time { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+        .bid-hist-amount { font-size: 1rem; font-weight: 800; color: var(--yellow); }
+
+        /* ═══════════════════════ ADMIN PANEL ═══════════════════════ */
+        .admin-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .admin-section-header {
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .admin-section-title { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; color: var(--yellow); }
+        .admin-section-body { padding: 16px 18px; }
+
+        /* Auction Controls */
+        .auction-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ctrl-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.8rem; font-weight: 700;
+            border: none; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .ctrl-btn:hover { transform: translateY(-1px); }
+        .ctrl-pause { background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.3); color: var(--yellow); }
+        .ctrl-resume { background: rgba(6, 148, 148, 0.2); border: 1px solid rgba(6, 148, 148, 0.4); color: #fff; }
+        .ctrl-once { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #fff; }
+        .ctrl-twice { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #fff; }
+        .ctrl-sold { background: linear-gradient(110deg, #FF69B4, #00F0FF); color: #071c22; font-weight: 900; }
+        .ctrl-unsold { background: rgba(255, 113, 139, 0.15); border: 1px solid rgba(255, 113, 139, 0.3); color: var(--red); }
+        .ctrl-next { background: rgba(6, 148, 148, 0.2); border: 1px solid rgba(6, 148, 148, 0.4); color: #fff; }
+
+        /* Current lot admin summary */
+        .admin-lot-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .als-stat {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+        .als-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+        .als-value { font-size: 1.1rem; font-weight: 800; }
+
+        /* Team Purse Table */
+        .team-table { width: 100%; border-collapse: collapse; }
+        .team-table th {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; color: var(--muted);
+            text-align: left; padding: 8px 0; border-bottom: 1px solid var(--border);
+        }
+        .team-table td {
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.85rem;
+        }
+        .team-table tr.highest-bidder td { color: var(--yellow); }
+        .team-table tr:last-child td { border-bottom: none; }
+        .team-budget-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .team-budget-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #FF69B4, #00F0FF);
+            transition: width 0.5s;
+        }
+
+        /* Player Transfer Approvals (Bye) */
+        .transfer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .transfer-item:last-child { border-bottom: none; }
+        .transfer-player { font-size: 0.9rem; font-weight: 700; }
+        .transfer-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+        .btn-approve {
+            background: rgba(6, 148, 148, 0.2);
+            border: 1px solid rgba(6, 148, 148, 0.4);
+            color: var(--teal);
+            font-size: 0.75rem; font-weight: 700;
+            padding: 6px 14px; border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-reject {
+            background: rgba(255, 113, 139, 0.1);
+            border: 1px solid rgba(255, 113, 139, 0.25);
+            color: var(--red);
+            font-size: 0.75rem; font-weight: 700;
+            padding: 6px 14px; border-radius: 8px;
+            cursor: pointer;
+            margin-left: 6px;
+        }
+
+        /* Projector link */
+        .projector-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.14), rgba(6, 148, 148, 0.18));
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            color: var(--yellow);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 16px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .projector-btn:hover { background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(6, 148, 148, 0.25)); color: #fff; }
+
+        /* Registered Players (admin approve for auction) */
+        .player-approval-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .player-approval-item:last-child { border-bottom: none; }
+        .pa-top { display: flex; align-items: center; gap: 12px; }
+        .pa-photo {
+            width: 44px; height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .pa-info { flex: 1; min-width: 0; }
+        .pa-name { font-size: 0.9rem; font-weight: 700; }
+        .pa-meta { font-size: 0.68rem; color: var(--muted); }
+        .pa-txn { font-size: 0.68rem; color: var(--teal); font-weight: 600; }
+        .pa-actions { display: flex; gap: 6px; margin-top: 8px; padding-left: 56px; }
+
+        /* Status labels */
+        .badge-approved { background: rgba(6, 148, 148, 0.2); color: #fff; border: 1px solid rgba(6, 148, 148, 0.5); font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+        .badge-pending { background: rgba(0, 240, 255, 0.12); color: var(--yellow); border: 1px solid rgba(0, 240, 255, 0.35); font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+        .badge-rejected { background: rgba(255, 113, 139, 0.1); color: var(--red); border: 1px solid rgba(255, 113, 139, 0.25); font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+        .badge-sold { background: rgba(255, 192, 203, 0.15); color: var(--pink); border: 1px solid rgba(255, 192, 203, 0.3); font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+
+        /* TOAST */
+        .toast-container-custom {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            z-index: 9999;
+            display: flex; flex-direction: column-reverse; gap: 8px;
+            align-items: center;
+        }
+        .toast-msg {
+            background: rgba(7, 28, 34, 0.96);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.85rem; font-weight: 600;
+            max-width: 320px;
+            text-align: center;
+            animation: toast-in 0.3s ease;
+        }
+        .toast-msg.success { border-color: rgba(6, 148, 148, 0.6); color: #fff; }
+        .toast-msg.error { border-color: rgba(255, 113, 139, 0.5); color: var(--red); }
+        .toast-msg.info { border-color: rgba(255, 192, 203, 0.5); color: var(--pink); }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* No content placeholder */
+        .no-content { text-align: center; padding: 32px 0; color: var(--muted); font-size: 0.9rem; }
+
+        /* Settings form */
+        .form-label-custom { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; display: block; }
+        .form-input-custom {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input-custom:focus { border-color: rgba(0, 240, 255, 0.6); }
+        .form-input-custom::placeholder { color: var(--muted); }
+
+        .btn-submit-custom {
+            padding: 12px 24px;
+            background: linear-gradient(110deg, #FF69B4, #00F0FF);
+            color: #071c22;
+            font-weight: 800;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+        .btn-submit-custom:hover { opacity: 0.9; }
+
+        /* CITPL auction palette and readable type scale */
+        .top-nav {
+            background: rgba(7, 28, 34, 0.98);
+            border-bottom-color: rgba(0, 240, 255, 0.3);
+            padding: 14px clamp(16px, 2.5vw, 32px);
+        }
+        .nav-brand .brand-title { font-size: 1rem; letter-spacing: 0.02em; }
+        .nav-brand .brand-sub { font-size: 0.76rem; color: var(--pink); }
+        .user-badge {
+            background: rgba(6, 148, 148, 0.2);
+            border-color: rgba(0, 240, 255, 0.38);
+            font-size: 0.84rem;
+        }
+        .btn-icon { font-size: 0.92rem; }
+        .tab-bar {
+            background: rgba(6, 75, 77, 0.86);
+            border-bottom-color: rgba(0, 240, 255, 0.24);
+        }
+        .tab-btn { padding: 14px 22px; font-size: 0.9rem; letter-spacing: 0.02em; }
+        .tab-btn.active { color: #fff; border-bottom-color: var(--coral); background: rgba(255, 105, 180, 0.16); }
+        .owner-header {
+            background: linear-gradient(125deg, rgba(255, 105, 180, 0.18), rgba(6, 148, 148, 0.2));
+            border-color: rgba(0, 240, 255, 0.38);
+            padding: 20px 22px;
+        }
+        .owner-crown { font-size: 1.65rem; }
+        .owner-team-name { font-size: 1.35rem; }
+        .owner-status-pill { font-size: 0.76rem; letter-spacing: 0.06em; }
+        .owner-status-pill.live {
+            background: rgba(255, 105, 180, 0.18);
+            border-color: rgba(255, 105, 180, 0.42);
+        }
+        .owner-status-pill.paused {
+            background: rgba(0, 240, 255, 0.12);
+            border-color: rgba(0, 240, 255, 0.35);
+        }
+        .purse-stat { background: rgba(7, 28, 34, 0.65); padding: 14px 16px; }
+        .purse-stat .ps-label,
+        .bid-stat .bs-label,
+        .als-label,
+        .team-table th { font-size: 0.78rem; letter-spacing: 0.06em; }
+        .purse-stat .ps-value { font-size: 1.65rem; }
+        .squad-title { font-size: 0.76rem; letter-spacing: 0.06em; }
+        .squad-chip { font-size: 0.82rem; }
+        .empty-squad { font-size: 0.9rem; }
+        .current-lot-card,
+        .admin-section {
+            background: rgba(6, 75, 77, 0.72);
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+        .lot-header { background: rgba(7, 28, 34, 0.55); padding: 16px 20px; }
+        .lot-number { font-size: 0.82rem; letter-spacing: 0.07em; }
+        .lot-timer { font-size: 2.2rem; }
+        .player-lot-body { padding: 20px; }
+        .player-lot-photo { border-color: rgba(255, 105, 180, 0.6); }
+        .player-lot-cat,
+        .player-lot-role { font-size: 0.78rem; letter-spacing: 0.06em; }
+        .player-lot-name { font-size: clamp(1.45rem, 3vw, 1.85rem); }
+        .player-lot-meta { font-size: 0.9rem; }
+        .player-lot-role {
+            background: rgba(0, 240, 255, 0.12);
+            border-color: rgba(0, 240, 255, 0.34);
+        }
+        .bid-stat { padding: 16px 20px; }
+        .bid-stat .bs-value { font-size: 1.8rem; }
+        .bid-stat .bs-team { font-size: 0.92rem; }
+        .bid-button,
+        .ctrl-sold,
+        .btn-submit-custom {
+            background: linear-gradient(110deg, #FF69B4, #00F0FF);
+            color: #fff;
+        }
+        .bid-button { box-shadow: 0 5px 24px rgba(255, 105, 180, 0.3); }
+        @keyframes bid-pulse {
+            0%, 100% { box-shadow: 0 5px 24px rgba(255, 105, 180, 0.26); }
+            50% { box-shadow: 0 5px 34px rgba(0, 240, 255, 0.38); }
+        }
+        .bid-button.you-winning {
+            background: linear-gradient(110deg, #069494, #00F0FF);
+            color: #071c22;
+            box-shadow: 0 5px 22px rgba(6, 148, 148, 0.35);
+        }
+        .bid-msg { font-size: 0.92rem; }
+        .section-title,
+        .admin-section-title { font-size: 0.82rem; letter-spacing: 0.07em; }
+        .bid-hist-team,
+        .transfer-player,
+        .pa-name { font-size: 0.98rem; }
+        .bid-hist-time,
+        .transfer-meta,
+        .pa-meta,
+        .pa-txn { font-size: 0.8rem; }
+        .bid-hist-amount { font-size: 1.08rem; }
+        .admin-section-header { background: rgba(0, 240, 255, 0.08); padding: 16px 20px; }
+        .admin-section-body { padding: 18px 20px; }
+        .ctrl-btn { font-size: 0.88rem; }
+        .ctrl-pause {
+            background: rgba(0, 240, 255, 0.12);
+            border-color: rgba(0, 240, 255, 0.34);
+        }
+        .ctrl-resume,
+        .ctrl-next,
+        .btn-approve {
+            background: rgba(6, 148, 148, 0.2);
+            border-color: rgba(6, 148, 148, 0.42);
+        }
+        .ctrl-sold { color: #fff; }
+        .ctrl-unsold,
+        .btn-reject {
+            background: rgba(255, 113, 139, 0.12);
+            border-color: rgba(255, 113, 139, 0.32);
+        }
+        .ctrl-twice { border-color: rgba(255, 105, 180, 0.38); }
+        .als-stat { background: rgba(7, 28, 34, 0.65); }
+        .als-value { font-size: 1.2rem; }
+        .team-table td { font-size: 0.92rem; }
+        .team-budget-fill { background: linear-gradient(90deg, #FF69B4, #00F0FF); }
+        .projector-btn {
+            background: linear-gradient(110deg, rgba(255, 105, 180, 0.16), rgba(6, 148, 148, 0.2));
+            border-color: rgba(0, 240, 255, 0.38);
+            font-size: 0.98rem;
+        }
+        .projector-btn:hover {
+            background: linear-gradient(110deg, rgba(255, 105, 180, 0.24), rgba(6, 148, 148, 0.32));
+        }
+        .pa-name { font-size: 0.96rem; }
+        .badge-approved,
+        .badge-pending,
+        .badge-rejected,
+        .badge-sold { font-size: 0.74rem; }
+        .toast-msg { background: rgba(7, 28, 34, 0.98); font-size: 0.92rem; }
+        .form-label-custom { font-size: 0.82rem; letter-spacing: 0.04em; }
+        .form-input-custom { font-size: 1rem; }
+        .form-input-custom:focus { border-color: rgba(0, 240, 255, 0.68); }
+        .btn-submit-custom { font-size: 0.98rem; }
+        .top-nav {
+            background: rgba(247,252,252,0.96);
+            border-bottom-color: rgba(6,148,148,0.2);
+        }
+        .user-badge {
+            background: rgba(0,240,255,0.16);
+            border-color: rgba(6,148,148,0.3);
+            color: #075e64;
+        }
+        .btn-icon { color: #075e64; }
+        .btn-icon:hover { color: #075e64; }
+        .tab-bar {
+            background: rgba(164,216,216,0.94);
+            border-bottom-color: rgba(6,148,148,0.18);
+        }
+        .tab-btn { color: rgba(23,59,64,0.72); }
+        .tab-btn.active {
+            color: #a91863;
+            border-bottom-color: #FF69B4;
+            background: rgba(255,105,180,0.12);
+        }
+        .owner-header {
+            background: linear-gradient(120deg, #d9ebeb, #bfe7e7);
+            border-color: rgba(6,148,148,0.25);
+        }
+        .owner-team-name { color: #087d83; }
+        .owner-status-pill.live {
+            background: rgba(255,105,180,0.14);
+            color: #a91863;
+            border-color: rgba(255,105,180,0.36);
+        }
+        .owner-status-pill.paused {
+            background: rgba(0,240,255,0.16);
+            color: #075e64;
+            border-color: rgba(6,148,148,0.28);
+        }
+        .purse-stat,
+        .als-stat { background: #e6f0f0; }
+        .current-lot-card,
+        .admin-section {
+            background: #e2eeee;
+            border-color: rgba(6,148,148,0.22);
+            box-shadow: 0 8px 24px rgba(6,84,87,0.06);
+        }
+        .lot-header { background: #c9eeee; }
+        .player-lot-role {
+            background: rgba(0,240,255,0.18);
+            color: #075e64;
+        }
+        .bid-stat .bs-team { color: var(--text); }
+        .bid-button,
+        .ctrl-sold,
+        .btn-submit-custom {
+            background: linear-gradient(110deg, #FF69B4, #00F0FF);
+            color: #173b40;
+        }
+        .bid-button:disabled {
+            background: rgba(23,59,64,0.08);
+            color: rgba(23,59,64,0.5);
+        }
+        .bid-button.you-winning {
+            background: linear-gradient(110deg, #069494, #00F0FF);
+            color: #fff;
+        }
+        .admin-section-header { background: #c9eeee; }
+        .admin-section-title { color: #087d83; }
+        .section-title { color: #a91863; }
+        .ctrl-pause { color: #075e64; }
+        .ctrl-resume,
+        .ctrl-next,
+        .btn-approve { color: #075e64; }
+        .ctrl-once,
+        .ctrl-twice { color: var(--text); }
+        .ctrl-unsold,
+        .btn-reject { color: #b42342; }
+        .ctrl-sold { color: #173b40; }
+        .btn-icon:hover,
+        .bid-stat .bs-team,
+        .ctrl-resume,
+        .ctrl-next,
+        .ctrl-once,
+        .ctrl-twice,
+        .bid-button.you-winning,
+        .ctrl-sold,
+        .badge-approved,
+        .toast-msg.success { color: #173b40; }
+        .badge-pending { color: #075e64; }
+        .toast-msg { background: #f5fafa; color: var(--text); }
+        .toast-msg.success { color: #075e64; }
+        .form-input-custom {
+            background: #f7fbfb;
+            border-color: rgba(6,148,148,0.25);
+            color: var(--text);
+        }
+        .form-input-custom::placeholder { color: rgba(23,59,64,0.5); }
+        .form-label-custom { color: rgba(23,59,64,0.78); }
+        #quickOwnerBtns > button { color: var(--text) !important; }
+        .tab-pane { color: var(--text); }
+
+        @media (max-width: 600px) {
+            .top-nav { padding: 12px 14px; }
+            .nav-brand .brand-title { font-size: 0.88rem; }
+            .nav-brand .brand-sub { font-size: 0.72rem; }
+            .user-badge { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.76rem; }
+            .tab-btn { padding: 12px 15px; font-size: 0.82rem; }
+            .owner-header { padding: 17px 15px; }
+            .owner-team-name { font-size: 1.18rem; }
+            .purse-stat .ps-label,
+            .bid-stat .bs-label { font-size: 0.69rem; }
+            .purse-stat .ps-value { font-size: 1.42rem; }
+            .player-lot-body { gap: 12px; padding: 16px; }
+            .player-lot-photo { width: 70px; height: 84px; }
+            .player-lot-meta { font-size: 0.82rem; }
+            .bid-stat { padding: 14px 13px; }
+            .bid-stat .bs-value { font-size: 1.5rem; }
+            .bid-button { padding: 17px 12px; font-size: 1.12rem; }
+            .admin-section-header { padding: 14px 15px; }
+            .admin-section-body { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAV -->
+    <div class="top-nav">
+        <div class="nav-brand">
+            <img src="../assets/citpl-logo.png" alt="CITPL Logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+            <div>
+                <div class="brand-title">CITPL AUCTION 2026</div>
+                <div class="brand-sub">Bidding Room</div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <span class="user-badge" id="userBadge">Loading...</span>
+            <button class="btn-icon" onclick="signOut()" title="Sign Out"><i class="fas fa-right-from-bracket"></i></button>
+        </div>
+    </div>
+
+    <!-- TAB BAR — rendered based on role -->
+    <div class="tab-bar" id="tabBar"></div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    <!-- TAB CONTENT AREA -->
+    <div id="tabContent"></div>
+
+    <!-- INLINE LOGIN SCREEN OVERLAY -->
+    <div id="loginScreen" style="display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto">
+        <div style="max-width:460px;margin:0 auto;padding:32px 20px">
+            <div style="text-align:center;margin-bottom:32px">
+                <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--coral),var(--blue));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#071c22;margin:0 auto 14px">С
+                </div>
+                <div style="font-size:1.3rem;font-weight:900;letter-spacing:0.04em">CITPL AUCTION 2026</div>
+                <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">Sign in to access the live bidding room</div>
+            </div>
+
+            <!-- Quick Owner Login Buttons -->
+            <div style="margin-bottom:24px">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px">QUICK LOGIN — TEAM OWNERS</div>
+                <div id="quickOwnerBtns" style="display:flex;flex-direction:column;gap:8px"></div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+                <div style="font-size:0.72rem;color:var(--muted)">or sign in manually</div>
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+            </div>
+
+            <!-- Manual Login Form -->
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px">
+                <div style="margin-bottom:14px">
+                    <label class="form-label-custom">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-input-custom" placeholder="your@cit.ac.in" autocomplete="username">
+                </div>
+                <div style="margin-bottom:18px">
+                    <label class="form-label-custom">Password</label>
+                    <input type="password" id="loginPass" class="form-input-custom" placeholder="Enter password" autocomplete="current-password">
+                </div>
+                <button class="btn-submit-custom" style="width:100%;padding:14px" onclick="handleManualLogin()">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In & Enter Auction
+                </button>
+                <div id="loginError" style="color:var(--red);font-size:0.8rem;text-align:center;margin-top:10px;display:none"></div>
+            </div>
+
+            <div style="text-align:center;margin-top:16px">
+                <a href="../index.html" style="color:var(--muted);font-size:0.78rem">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/firebase-config.js"></script>
+    <script>
+    // ══════════════════════════════════════════════
+    //  UTILITIES
+    // ══════════════════════════════════════════════
+    const money = v => `₹${Number(v || 0).toLocaleString('en-IN')}`;
+    const fmt2 = n => String(Math.max(0, n)).padStart(2, '0');
+    let currentTab = null;
+    let currentUserRole = null;
+    let currentTeam = null;
+    let toastTimeout = null;
+
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        el.className = `toast-msg ${type}`;
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 350); }, 3500);
+    }
+
+    function fmt3(n) { return String(n || '---').padStart(3, '0'); }
+
+    function styleTimer(seconds, elId) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.textContent = `00:${fmt2(seconds)}`;
+        el.className = 'lot-timer';
+        if (seconds > 10) el.classList.add('safe');
+        else if (seconds > 5) el.classList.add('warn');
+        else el.classList.add('danger');
+    }
+
+    function getStatusClass(status) {
+        const map = { LIVE: 'live', PAUSED: 'paused', GOING_ONCE: 'going', GOING_TWICE: 'going' };
+        return map[status] || 'live';
+    }
+
+    // ══════════════════════════════════════════════
+    //  AUTH & INIT
+    // ══════════════════════════════════════════════
+    function init() {
+        const user = window.citplDB.getCurrentUser();
+        if (!user) {
+            showLoginScreen();
+            return;
+        }
+        const role = window.citplDB.normalizeRole(user.role);
+        currentUserRole = role;
+
+        if (!['TEAM_OWNER', 'ADMIN'].includes(role)) {
+            showLoginScreen();
+            return;
+        }
+
+        // Make sure login screen is hidden and tabs visible
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('tabBar').style.display = '';
+        document.getElementById('tabContent').style.display = '';
+
+        if (role === 'TEAM_OWNER') {
+            const teams = window.citplDB.db.teams;
+            currentTeam = teams.find(t => t.id === user.teamId);
+            if (!currentTeam) { window.location.href = 'login.html'; return; }
+            document.getElementById('userBadge').textContent = `${currentTeam.name} — Owner`;
+            buildOwnerTabs();
+        } else {
+            document.getElementById('userBadge').textContent = 'League Admin';
+            buildAdminTabs();
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  TAB SYSTEM
+    // ══════════════════════════════════════════════
+    function buildOwnerTabs() {
+        const tabs = [
+            { id: 'bid', label: '🏏 Live Bidding' },
+            { id: 'squad', label: '👥 My Squad' },
+            { id: 'history', label: '📋 Bid History' }
+        ];
+        renderTabBar(tabs, 'bid');
+    }
+
+    function buildAdminTabs() {
+        const tabs = [
+            { id: 'auction_control', label: '🎯 Auction Control' },
+            { id: 'teams', label: '🏆 Teams & Purses' },
+            { id: 'players', label: '👤 Player Registry' },
+            { id: 'transfers', label: '🔄 Transfer Approvals' },
+            { id: 'settings', label: '⚙️ Settings' }
+        ];
+        renderTabBar(tabs, 'auction_control');
+    }
+
+    function renderTabBar(tabs, defaultTab) {
+        const bar = document.getElementById('tabBar');
+        bar.innerHTML = tabs.map(t => `
+            <button class="tab-btn${t.id === defaultTab ? ' active' : ''}" onclick="switchTab('${t.id}')" id="tab-btn-${t.id}">
+                ${t.label}
+            </button>
+        `).join('');
+        switchTab(defaultTab);
+    }
+
+    function switchTab(tabId) {
+        currentTab = tabId;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById(`tab-btn-${tabId}`);
+        if (btn) btn.classList.add('active');
+        renderCurrentTab();
+    }
+
+    function renderCurrentTab() {
+        if (currentUserRole === 'TEAM_OWNER') {
+            switch (currentTab) {
+                case 'bid': renderOwnerBidTab(); break;
+                case 'squad': renderOwnerSquadTab(); break;
+                case 'history': renderBidHistoryTab(); break;
+            }
+        } else {
+            switch (currentTab) {
+                case 'auction_control': renderAdminAuctionTab(); break;
+                case 'teams': renderAdminTeamsTab(); break;
+                case 'players': renderAdminPlayersTab(); break;
+                case 'transfers': renderAdminTransfersTab(); break;
+                case 'settings': renderAdminSettingsTab(); break;
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  OWNER: BID TAB
+    // ══════════════════════════════════════════════
+    function renderOwnerBidTab() {
+        const state = window.citplDB.db.auctionState;
+        const teams = window.citplDB.db.teams;
+        const player = window.citplDB.db.players.find(p => p.id === state.currentPlayerId);
+        const highestTeam = teams.find(t => t.id === state.highestTeamId);
+        const myTeam = teams.find(t => t.id === currentTeam.id) || currentTeam;
+        const remaining = window.citplDB.getAuctionRemainingSeconds();
+        const nextBid = window.citplDB.getNextAuctionBid();
+        const amIHighest = state.highestTeamId === myTeam.id;
+        const canBid = state.status === 'LIVE' && remaining > 0 && !!player && !player.teamId && !amIHighest &&
+                       myTeam.remainingPurse >= nextBid && myTeam.squadCount < (window.citplDB.db.settings.maxSquadSize || 15);
+
+        let bidMsg = '';
+        let bidMsgClass = '';
+        if (amIHighest) { bidMsg = '✅ Your team is currently the highest bidder!'; bidMsgClass = 'you-winning'; }
+        else if (highestTeam && highestTeam.id !== myTeam.id) { bidMsg = `⚡ ${highestTeam.name} has outbid you — place a higher bid!`; bidMsgClass = 'outbid'; }
+        else if (state.status !== 'LIVE') { bidMsg = `Auction status: ${String(state.status || '').replaceAll('_', ' ')}`; }
+        else if (remaining <= 0) { bidMsg = 'Bidding time has ended. Waiting for auctioneer.'; }
+        else if (myTeam.remainingPurse < nextBid) { bidMsg = `Insufficient purse. You need ${money(nextBid)} but have ${money(myTeam.remainingPurse)}.`; bidMsgClass = 'error'; }
+        else { bidMsg = `Bid increment: ${money(state.bidIncrement)}`; }
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active" id="pane-bid">
+            <!-- Owner Summary -->
+            <div class="owner-header">
+                <div class="owner-name-row">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <span class="owner-crown">👑</span>
+                        <div>
+                            <div style="font-size:0.65rem;color:var(--muted);font-weight:700;letter-spacing:0.1em">YOUR TEAM</div>
+                            <div class="owner-team-name">${myTeam.name}</div>
+                        </div>
+                    </div>
+                    <div class="owner-status-pill ${getStatusClass(state.status)}">${String(state.status || 'WAITING').replaceAll('_', ' ')}</div>
+                </div>
+                <div class="purse-grid">
+                    <div class="purse-stat">
+                        <div class="ps-label">REMAINING PURSE</div>
+                        <div class="ps-value green">${money(myTeam.remainingPurse)}</div>
+                    </div>
+                    <div class="purse-stat">
+                        <div class="ps-label">SQUAD SIZE</div>
+                        <div class="ps-value blue">${myTeam.squadCount} / ${window.citplDB.db.settings.maxSquadSize || 15}</div>
+                    </div>
+                    <div class="purse-stat">
+                        <div class="ps-label">TOTAL SPENT</div>
+                        <div class="ps-value" style="color:var(--text);font-size:1.1rem">${money(myTeam.totalSpent)}</div>
+                    </div>
+                    <div class="purse-stat">
+                        <div class="ps-label">AFTER THIS BID</div>
+                        <div class="ps-value" style="color:var(--muted);font-size:1.1rem">${player ? money(Math.max(0, myTeam.remainingPurse - nextBid)) : '—'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Lot -->
+            <div class="current-lot-card">
+                <div class="lot-header">
+                    <div class="lot-number">LOT #${fmt3(state.currentLot)}</div>
+                    <div id="ownerTimer" class="lot-timer safe">00:${fmt2(remaining)}</div>
+                </div>
+                ${player ? `
+                <div class="player-lot-body">
+                    <img class="player-lot-photo" src="${player.photo || '../assets/citpl-logo.png'}" alt="${player.name}">
+                    <div class="player-lot-info">
+                        <div class="player-lot-cat">${player.category || 'PLAYER'}</div>
+                        <div class="player-lot-name">${player.name}</div>
+                        <div class="player-lot-meta">${player.branch || 'CIT Abu Road'}${player.sem ? '  ·  ' + player.sem + ' Sem' : ''}</div>
+                        <span class="player-lot-role">${String(player.role || 'PLAYER').replaceAll('_', ' ')}</span>
+                    </div>
+                </div>
+                ` : `
+                <div class="player-lot-body" style="justify-content:center;text-align:center;padding:24px">
+                    <div style="color:var(--muted)">${state.status === 'AUCTION_COMPLETE' ? '🏁 Auction Complete — All lots have been called.' : '⏳ Waiting for the auctioneer to bring the next player on stage...'}</div>
+                </div>
+                `}
+                <div class="bid-row-card">
+                    <div class="bid-stat">
+                        <div class="bs-label">CURRENT BID</div>
+                        <div class="bs-value">${money(state.currentBid)}</div>
+                        <div class="bs-team">${highestTeam ? highestTeam.name : 'No bid yet'}</div>
+                    </div>
+                    <div class="bid-stat">
+                        <div class="bs-label">BASE PRICE</div>
+                        <div class="bs-value" style="color:var(--text);font-size:1.2rem">${player ? money(player.basePrice || 500) : '—'}</div>
+                        <div class="bs-team" style="color:var(--muted)">Increment: ${money(state.bidIncrement)}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bid Action -->
+            <div class="bid-action-section">
+                <button class="bid-button ${amIHighest ? 'you-winning' : ''}" id="bidButton"
+                    ${canBid ? '' : 'disabled'}
+                    onclick="handlePlaceBid()">
+                    ${amIHighest
+                        ? '<i class="fas fa-check-circle"></i> You Are Winning!'
+                        : (player ? `<i class="fas fa-gavel"></i> PLACE BID — ${money(nextBid)}` : '<i class="fas fa-ban"></i> No Active Lot')}
+                </button>
+                <div class="bid-msg ${bidMsgClass}">${bidMsg}</div>
+            </div>
+
+            <!-- Recent Bid History -->
+            <div class="section-title">Bid History — This Lot</div>
+            <div class="bid-history-list">
+                ${[...(state.bidsHistory || [])].reverse().slice(0, 10).map((b, i) => `
+                    <div class="bid-hist-item ${b.teamId === myTeam.id ? 'my-bid' : ''}">
+                        <div>
+                            <div class="bid-hist-team">${i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : ''}${b.teamName}${b.teamId === myTeam.id ? ' (You)' : ''}</div>
+                            <div class="bid-hist-time">${b.time}</div>
+                        </div>
+                        <div class="bid-hist-amount">${money(b.amount)}</div>
+                    </div>
+                `).join('') || '<div class="no-content">No bids placed yet on this lot.</div>'}
+            </div>
+        </div>`;
+
+        styleTimer(remaining, 'ownerTimer');
+    }
+
+    // ══════════════════════════════════════════════
+    //  OWNER: MY SQUAD TAB
+    // ══════════════════════════════════════════════
+    function renderOwnerSquadTab() {
+        const teams = window.citplDB.db.teams;
+        const myTeam = teams.find(t => t.id === currentTeam.id) || currentTeam;
+        const myPlayers = window.citplDB.db.players.filter(p => p.teamId === myTeam.id);
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+            <div class="owner-header" style="margin-bottom:16px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                    <div class="owner-team-name">${myTeam.name}</div>
+                    <span class="badge-approved">${myTeam.squadCount} / ${window.citplDB.db.settings.maxSquadSize || 15} Players</span>
+                </div>
+                <div class="purse-grid">
+                    <div class="purse-stat">
+                        <div class="ps-label">REMAINING PURSE</div>
+                        <div class="ps-value green">${money(myTeam.remainingPurse)}</div>
+                    </div>
+                    <div class="purse-stat">
+                        <div class="ps-label">TOTAL SPENT</div>
+                        <div class="ps-value" style="color:var(--text)">${money(myTeam.totalSpent)}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">Squad Roster (${myPlayers.length} Players)</div>
+            <div class="admin-section">
+                <div class="admin-section-body">
+                    ${myPlayers.length === 0
+                        ? '<div class="no-content">No players purchased yet. Start bidding in the Live Bidding tab!</div>'
+                        : myPlayers.map((p, i) => `
+                        <div class="player-approval-item">
+                            <div class="pa-top">
+                                <img class="pa-photo" src="${p.photo || '../assets/citpl-logo.png'}" alt="${p.name}">
+                                <div class="pa-info">
+                                    <div class="pa-name">#${i+1} ${p.name}</div>
+                                    <div class="pa-meta">${String(p.role || '').replaceAll('_', ' ')} · ${p.branch || ''} ${p.sem || ''}</div>
+                                    <div class="pa-txn" style="color:var(--gold)">Purchased: ${money(p.auctionPrice)}</div>
+                                </div>
+                                <div>
+                                    <span class="${p.category === 'Category A' ? 'badge-approved' : p.category === 'Category B' ? 'badge-pending' : 'badge-sold'}">${p.category}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  OWNER: BID HISTORY TAB (all lots)
+    // ══════════════════════════════════════════════
+    function renderBidHistoryTab() {
+        const logs = (window.citplDB.db.auditLogs || []).filter(l => l.action === 'BID_ACCEPTED' || l.action === 'PLAYER_SOLD' || l.action === 'PLAYER_UNSOLD').slice(0, 30);
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+            <div class="section-title">Auction Activity Log</div>
+            <div class="admin-section">
+                <div class="admin-section-body">
+                    ${logs.length === 0
+                        ? '<div class="no-content">No auction activity yet.</div>'
+                        : logs.map(l => `
+                        <div class="player-approval-item">
+                            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                                <div>
+                                    <div style="font-size:0.85rem;font-weight:700">${l.detail}</div>
+                                    <div style="font-size:0.68rem;color:var(--muted);margin-top:3px">${new Date(l.timestamp).toLocaleString()}</div>
+                                </div>
+                                <span class="${l.action === 'PLAYER_SOLD' ? 'badge-approved' : l.action === 'PLAYER_UNSOLD' ? 'badge-rejected' : 'badge-pending'}" style="white-space:nowrap">
+                                    ${l.action.replaceAll('_', ' ')}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  ADMIN: AUCTION CONTROL TAB
+    // ══════════════════════════════════════════════
+    function renderAdminAuctionTab() {
+        const state = window.citplDB.db.auctionState;
+        const teams = window.citplDB.db.teams;
+        const player = window.citplDB.db.players.find(p => p.id === state.currentPlayerId);
+        const highestTeam = teams.find(t => t.id === state.highestTeamId);
+        const remaining = window.citplDB.getAuctionRemainingSeconds();
+        const nextBid = window.citplDB.getNextAuctionBid();
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+
+            <!-- Projector Link -->
+            <a href="auction-live.html" target="_blank" rel="noopener" class="projector-btn">
+                <i class="fas fa-desktop"></i> Open Projector Screen
+                <span style="font-size:0.72rem;font-weight:400;opacity:0.7">(for big screen / TV)</span>
+            </a>
+
+            <!-- Current Lot Summary -->
+            <div class="admin-section" style="margin-bottom:16px">
+                <div class="admin-section-header">
+                    <span class="admin-section-title">Current Lot — LOT #${fmt3(state.currentLot)}</span>
+                    <span id="adminAucTimer" style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--red)">00:${fmt2(remaining)}</span>
+                </div>
+                <div class="admin-section-body">
+                    <div class="admin-lot-summary">
+                        <div class="als-stat">
+                            <div class="als-label">STATUS</div>
+                            <div class="als-value" style="font-size:0.85rem;font-weight:800;color:${state.status === 'LIVE' ? 'var(--green)' : state.status === 'PAUSED' ? 'var(--gold)' : 'var(--red)'}">${String(state.status || 'WAITING').replaceAll('_', ' ')}</div>
+                        </div>
+                        <div class="als-stat">
+                            <div class="als-label">CURRENT BID</div>
+                            <div class="als-value" style="color:var(--gold)">${money(state.currentBid)}</div>
+                        </div>
+                        <div class="als-stat">
+                            <div class="als-label">NEXT BID</div>
+                            <div class="als-value">${money(nextBid)}</div>
+                        </div>
+                    </div>
+
+                    ${player ? `
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px;background:rgba(255,255,255,0.75);border:1px solid var(--border);border-radius:10px">
+                        <img src="${player.photo || '../assets/citpl-logo.png'}" style="width:54px;height:64px;border-radius:8px;object-fit:cover;border:1px solid rgba(0,240,255,0.35)">
+                        <div>
+                            <div style="font-size:0.65rem;color:var(--gold);font-weight:700">${player.category}</div>
+                            <div style="font-size:1.1rem;font-weight:800">${player.name}</div>
+                            <div style="font-size:0.75rem;color:var(--muted)">${player.branch} · ${player.sem || ''} · ${String(player.role || '').replaceAll('_', ' ')}</div>
+                            <div style="font-size:0.75rem;color:var(--muted)">Base: ${money(player.basePrice || 500)}</div>
+                        </div>
+                        <div style="margin-left:auto;text-align:right">
+                            <div style="font-size:0.65rem;color:var(--muted)">HIGHEST BIDDER</div>
+                            <div style="font-size:1rem;font-weight:800;color:var(--gold)">${highestTeam ? highestTeam.name : 'No bid yet'}</div>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="text-align:center;padding:16px 0;color:var(--muted)">
+                        ${state.status === 'AUCTION_COMPLETE' ? '🏁 Auction Complete — All players have been auctioned.' : 'Click "Next Lot" to bring the next player on stage.'}
+                    </div>
+                    `}
+
+                    <!-- Bid History for current lot -->
+                    <div class="section-title">Live Bids — This Lot</div>
+                    <div class="bid-history-list" style="max-height:160px;overflow-y:auto">
+                        ${[...(state.bidsHistory || [])].reverse().map((b, i) => `
+                            <div class="bid-hist-item" style="${i === 0 ? 'border-color:rgba(255,105,180,0.4);background:rgba(255,105,180,0.1)' : ''}">
+                                <div>
+                                    <div class="bid-hist-team">${i === 0 ? '🥇 ' : ''}${b.teamName}</div>
+                                    <div class="bid-hist-time">${b.time}</div>
+                                </div>
+                                <div class="bid-hist-amount">${money(b.amount)}</div>
+                            </div>
+                        `).join('') || '<div class="no-content" style="padding:12px 0">No bids yet on this lot.</div>'}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auction Controls -->
+            <div class="admin-section" style="margin-bottom:16px">
+                <div class="admin-section-header">
+                    <span class="admin-section-title">Auctioneer Controls</span>
+                    <span style="font-size:0.65rem;color:var(--muted)">Admin Only</span>
+                </div>
+                <div class="admin-section-body">
+                    <div class="auction-controls">
+                        <button class="ctrl-btn ctrl-pause" onclick="setStatus('PAUSED')"><i class="fas fa-pause"></i> Pause</button>
+                        <button class="ctrl-btn ctrl-resume" onclick="setStatus('LIVE')"><i class="fas fa-play"></i> Resume</button>
+                        <button class="ctrl-btn ctrl-once" onclick="setStatus('GOING_ONCE')">Going Once</button>
+                        <button class="ctrl-btn ctrl-twice" onclick="setStatus('GOING_TWICE')">Going Twice</button>
+                        <button class="ctrl-btn ctrl-sold" onclick="confirmSold()"><i class="fas fa-gavel"></i> SOLD!</button>
+                        <button class="ctrl-btn ctrl-unsold" onclick="confirmUnsold()"><i class="fas fa-times-circle"></i> Unsold</button>
+                        <button class="ctrl-btn ctrl-next" onclick="confirmNext()"><i class="fas fa-step-forward"></i> Next Lot</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>`;
+
+        styleTimer(remaining, 'adminAucTimer');
+    }
+
+    // ══════════════════════════════════════════════
+    //  ADMIN: TEAMS & PURSES TAB
+    // ══════════════════════════════════════════════
+    function renderAdminTeamsTab() {
+        const teams = window.citplDB.db.teams;
+        const state = window.citplDB.db.auctionState;
+        const maxPurse = window.citplDB.db.settings.teamPurse || 10000;
+        const settings = window.citplDB.db.settings;
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+            <!-- Team Purse Monitor -->
+            <div class="section-title">Team Purse Monitor</div>
+            <div class="admin-section" style="margin-bottom:20px">
+                <div class="admin-section-body">
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Squad</th>
+                                <th>Spent</th>
+                                <th>Remaining</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${teams.map(t => `
+                                <tr class="${t.id === state.highestTeamId ? 'highest-bidder' : ''}">
+                                    <td>
+                                        <div style="font-weight:700">${t.name}</div>
+                                        <div style="font-size:0.65rem;color:var(--muted)">${t.ownerName}</div>
+                                        <div class="team-budget-bar">
+                                            <div class="team-budget-fill" style="width:${Math.round((t.remainingPurse / maxPurse) * 100)}%"></div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align:center">${t.squadCount}/${settings.maxSquadSize || 15}</td>
+                                    <td style="color:var(--red)">${money(t.totalSpent)}</td>
+                                    <td style="color:var(--gold);font-weight:800">${money(t.remainingPurse)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add New Team -->
+            <div class="section-title">Add New Franchise Team</div>
+            <div class="admin-section">
+                <div class="admin-section-body">
+                    <form onsubmit="handleAddTeam(event)">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                            <div>
+                                <label class="form-label-custom">Team Name *</label>
+                                <input type="text" id="newTeamName" class="form-input-custom" placeholder="e.g. Royal Strikers" required>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Short Code *</label>
+                                <input type="text" id="newTeamCode" class="form-input-custom" placeholder="e.g. RST" maxlength="4" required>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Owner Name *</label>
+                                <input type="text" id="newOwnerName" class="form-input-custom" placeholder="e.g. Rajesh Sharma" required>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Owner Email *</label>
+                                <input type="email" id="newOwnerEmail" class="form-input-custom" placeholder="Owner email" required>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Starting Purse (₹)</label>
+                                <input type="number" id="newStartingPurse" class="form-input-custom" value="10000" required>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Login Password</label>
+                                <input type="password" id="newOwnerPass" class="form-input-custom" placeholder="Set a unique password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit-custom"><i class="fas fa-plus-circle me-2"></i>Create Team & Owner Account</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Team List with Delete -->
+            <div class="section-title" style="margin-top:20px">Registered Teams</div>
+            <div class="admin-section">
+                <div class="admin-section-body">
+                    ${teams.map(t => `
+                        <div class="transfer-item">
+                            <div>
+                                <div class="transfer-player">${t.name} <span style="font-size:0.7rem;color:var(--muted)">(${t.shortName})</span></div>
+                                <div class="transfer-meta">Owner: ${t.ownerName} · ${t.ownerEmail}</div>
+                                <div class="transfer-meta">Squad: ${t.squadCount} · Purse: ${money(t.remainingPurse)}</div>
+                            </div>
+                            <button class="btn-reject" onclick="handleDeleteTeam('${t.id}')"><i class="fas fa-trash me-1"></i>Delete</button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  ADMIN: PLAYER REGISTRY TAB
+    // ══════════════════════════════════════════════
+    function renderAdminPlayersTab() {
+        const players = window.citplDB.db.players;
+        const teams = window.citplDB.db.teams;
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+            <div class="section-title">Player Registry (${players.length} total)</div>
+            <div class="admin-section">
+                <div class="admin-section-body">
+                    ${players.map(p => {
+                        const pTeam = teams.find(t => t.id === p.teamId);
+                        return `
+                        <div class="player-approval-item">
+                            <div class="pa-top">
+                                <img class="pa-photo" src="${p.photo || '../assets/citpl-logo.png'}" alt="${p.name}">
+                                <div class="pa-info">
+                                    <div class="pa-name">${p.name}</div>
+                                    <div class="pa-meta">${String(p.role || '').replaceAll('_', ' ')} · ${p.branch || ''} ${p.sem || ''}</div>
+                                    <div class="pa-txn">UTR: ${p.transactionId || '—'}</div>
+                                    ${pTeam ? `<div style="font-size:0.68rem;color:var(--green);font-weight:700">Team: ${pTeam.name} · ${money(p.auctionPrice)}</div>` : ''}
+                                </div>
+                                <div>
+                                    <span class="${p.status === 'APPROVED' ? 'badge-approved' : p.status === 'PENDING' ? 'badge-pending' : p.status === 'SOLD' ? 'badge-sold' : 'badge-rejected'}">${p.status}</span>
+                                </div>
+                            </div>
+                            ${p.status === 'PENDING' ? `
+                            <div class="pa-actions">
+                                <button class="btn-approve" onclick="handleApprovePlayer('${p.id}')"><i class="fas fa-check me-1"></i>Approve</button>
+                                <button class="btn-reject" onclick="handleRejectPlayer('${p.id}')"><i class="fas fa-times me-1"></i>Reject</button>
+                            </div>` : ''}
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  ADMIN: TRANSFER APPROVALS (Player Bye)
+    // ══════════════════════════════════════════════
+    function renderAdminTransfersTab() {
+        const transfers = window.citplDB.db.pendingTransfers || [];
+        const teams = window.citplDB.db.teams;
+        const players = window.citplDB.db.players;
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+            <div class="section-title">Pending Player Transfers (Bye Requests)</div>
+            <div class="admin-section" style="margin-bottom:20px">
+                <div class="admin-section-header">
+                    <span class="admin-section-title">Transfer Requests</span>
+                    <span style="font-size:0.65rem;color:var(--muted)">Admin must approve each transfer</span>
+                </div>
+                <div class="admin-section-body">
+                    ${transfers.length === 0
+                        ? '<div class="no-content">No pending transfer requests.</div>'
+                        : transfers.map(tr => {
+                            const p = players.find(x => x.id === tr.playerId);
+                            const fromTeam = teams.find(t => t.id === tr.fromTeamId);
+                            const toTeam = teams.find(t => t.id === tr.toTeamId);
+                            return `
+                            <div class="transfer-item">
+                                <div>
+                                    <div class="transfer-player">${p ? p.name : 'Unknown Player'}</div>
+                                    <div class="transfer-meta">
+                                        From: <strong>${fromTeam ? fromTeam.name : '—'}</strong>
+                                        → To: <strong>${toTeam ? toTeam.name : '—'}</strong>
+                                    </div>
+                                    <div class="transfer-meta">Transfer Fee: ${money(tr.fee || 0)} · Requested: ${new Date(tr.requestedAt).toLocaleString()}</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:6px">
+                                    <button class="btn-approve" onclick="approveTransfer('${tr.id}')"><i class="fas fa-check me-1"></i>Approve</button>
+                                    <button class="btn-reject" onclick="rejectTransfer('${tr.id}')"><i class="fas fa-times me-1"></i>Reject</button>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                </div>
+            </div>
+
+            <!-- Manual player assignment -->
+            <div class="section-title">Manual Player Assignment</div>
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <span class="admin-section-title">Assign Player to Team</span>
+                </div>
+                <div class="admin-section-body">
+                    <form onsubmit="handleManualAssign(event)">
+                        <div style="display:grid;gap:12px;margin-bottom:12px">
+                            <div>
+                                <label class="form-label-custom">Player</label>
+                                <select id="assignPlayerSelect" class="form-input-custom">
+                                    ${players.filter(p => !p.teamId && p.status === 'APPROVED').map(p =>
+                                        `<option value="${p.id}">${p.name} (${p.category})</option>`
+                                    ).join('') || '<option value="">No unassigned approved players</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Assign to Team</label>
+                                <select id="assignTeamSelect" class="form-input-custom">
+                                    ${teams.map(t => `<option value="${t.id}">${t.name} (Squad: ${t.squadCount})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Transfer / Bye Fee (₹)</label>
+                                <input type="number" id="assignFee" class="form-input-custom" value="0" min="0">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit-custom"><i class="fas fa-user-plus me-2"></i>Assign Player to Team</button>
+                    </form>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  ADMIN: SETTINGS TAB
+    // ══════════════════════════════════════════════
+    function renderAdminSettingsTab() {
+        const s = window.citplDB.db.settings;
+        const lm = window.citplDB.db.liveMatch;
+
+        document.getElementById('tabContent').innerHTML = `
+        <div class="tab-pane active">
+            <!-- Auction Timer Settings -->
+            <div class="section-title">Auction Settings</div>
+            <div class="admin-section" style="margin-bottom:20px">
+                <div class="admin-section-body">
+                    <form onsubmit="handleSaveSettings(event)">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                            <div>
+                                <label class="form-label-custom">Bid Timer (seconds)</label>
+                                <input type="number" id="setTimer" class="form-input-custom" value="${s.auctionTimerSeconds || 15}" min="5" max="60">
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Default Bid Increment (₹)</label>
+                                <input type="number" id="setBidIncrement" class="form-input-custom" value="${s.defaultBidIncrement || 100}" min="50">
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Max Squad Size</label>
+                                <input type="number" id="setMaxSquad" class="form-input-custom" value="${s.maxSquadSize || 15}" min="5">
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Team Starting Purse (₹)</label>
+                                <input type="number" id="setPurse" class="form-input-custom" value="${s.teamPurse || 10000}" min="1000">
+                            </div>
+                            <div>
+                                <label class="form-label-custom">Timer Extension on Late Bid (s)</label>
+                                <input type="number" id="setExtension" class="form-input-custom" value="${s.timerExtensionSeconds || 10}" min="5">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit-custom"><i class="fas fa-save me-2"></i>Save Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Scorekeeper Permission -->
+            <div class="section-title">Scorekeeper Access Control</div>
+            <div class="admin-section" style="margin-bottom:20px">
+                <div class="admin-section-body">
+                    <div style="margin-bottom:12px">
+                        <label class="form-label-custom">Assigned Scorekeeper Email</label>
+                        <input type="email" id="skEmail" class="form-input-custom" value="${lm.assignedScorekeeper || ''}" placeholder="Scorekeeper email">
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <button class="btn-submit-custom" onclick="handleAssignScorekeeper()"><i class="fas fa-user-check me-2"></i>Grant Scoring Access</button>
+                        <button style="padding:12px 24px;border-radius:10px;font-size:0.85rem;font-weight:800;border:none;cursor:pointer;background:${lm.isLockedByAdmin ? 'rgba(34,197,94,0.2)' : 'rgba(224,77,67,0.2)'};color:${lm.isLockedByAdmin ? 'var(--green)' : 'var(--red)'};border:1px solid ${lm.isLockedByAdmin ? 'rgba(34,197,94,0.35)' : 'rgba(224,77,67,0.35)'}" onclick="toggleLock()">
+                            <i class="fas fa-${lm.isLockedByAdmin ? 'unlock' : 'lock'} me-2"></i>${lm.isLockedByAdmin ? 'Unlock Scoring' : 'Lock Scoring'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Sign Out -->
+            <div class="admin-section">
+                <div class="admin-section-body">
+                    <button onclick="signOut()" style="width:100%;padding:14px;background:rgba(224,77,67,0.15);border:1px solid rgba(224,77,67,0.3);color:var(--red);font-weight:700;border-radius:10px;cursor:pointer;font-size:0.9rem">
+                        <i class="fas fa-right-from-bracket me-2"></i>Sign Out as Admin
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  ACTION HANDLERS
+    // ══════════════════════════════════════════════
+
+    function handlePlaceBid() {
+        const nextBid = window.citplDB.getNextAuctionBid();
+        const result = window.citplDB.placeBid(nextBid);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function setStatus(status) {
+        const result = window.citplDB.setAuctionStatus(status);
+        showToast(result.message, result.success ? 'info' : 'error');
+    }
+
+    function confirmSold() {
+        const state = window.citplDB.db.auctionState;
+        if (!state.currentPlayerId || !state.highestTeamId) { showToast('No active bid to mark as sold.', 'error'); return; }
+        const player = window.citplDB.db.players.find(p => p.id === state.currentPlayerId);
+        const team = window.citplDB.db.teams.find(t => t.id === state.highestTeamId);
+        if (!confirm(`SOLD! Confirm: ${player ? player.name : 'Player'} → ${team ? team.name : '?'} for ${money(state.currentBid)}?`)) return;
+        const result = window.citplDB.markPlayerSold(state.currentPlayerId, state.highestTeamId, state.currentBid);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function confirmUnsold() {
+        if (!confirm('Mark this player as UNSOLD? No purse will be deducted.')) return;
+        const result = window.citplDB.markPlayerUnsold();
+        showToast(result.message, result.success ? 'info' : 'error');
+    }
+
+    function confirmNext() {
+        const state = window.citplDB.db.auctionState;
+        if (['LIVE', 'GOING_ONCE', 'GOING_TWICE', 'PAUSED'].includes(state.status) && state.currentPlayerId) {
+            if (!confirm('The current lot has not been closed. Move to next lot anyway?')) return;
+        }
+        const result = window.citplDB.advanceAuctionToNextPlayer();
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function handleAddTeam(e) {
+        e.preventDefault();
+        const result = window.citplDB.createTeamByAdmin(
+            document.getElementById('newTeamName').value,
+            document.getElementById('newTeamCode').value,
+            document.getElementById('newOwnerName').value,
+            document.getElementById('newOwnerEmail').value,
+            document.getElementById('newOwnerPass').value,
+            document.getElementById('newStartingPurse').value
+        );
+        showToast(result.message, result.success ? 'success' : 'error');
+        if (result.success) renderAdminTeamsTab();
+    }
+
+    function handleDeleteTeam(teamId) {
+        const team = window.citplDB.db.teams.find(t => t.id === teamId);
+        if (!confirm(`Delete team "${team ? team.name : teamId}" and their owner account? This cannot be undone.`)) return;
+        const result = window.citplDB.deleteTeamByAdmin(teamId);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function handleApprovePlayer(id) {
+        const result = window.citplDB.approvePlayer(id);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function handleRejectPlayer(id) {
+        const result = window.citplDB.rejectPlayer(id);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function approveTransfer(transferId) {
+        const transfers = window.citplDB.db.pendingTransfers || [];
+        const tr = transfers.find(t => t.id === transferId);
+        if (!tr) { showToast('Transfer request not found.', 'error'); return; }
+        const result = window.citplDB.approvePlayerTransfer(transferId);
+        showToast(result ? result.message : 'Transfer approved!', 'success');
+    }
+
+    function rejectTransfer(transferId) {
+        const transfers = window.citplDB.db.pendingTransfers || [];
+        const idx = transfers.findIndex(t => t.id === transferId);
+        if (idx === -1) { showToast('Transfer request not found.', 'error'); return; }
+        window.citplDB.db.pendingTransfers.splice(idx, 1);
+        window.citplDB.save();
+        showToast('Transfer request rejected.', 'info');
+    }
+
+    function handleManualAssign(e) {
+        e.preventDefault();
+        const playerId = document.getElementById('assignPlayerSelect').value;
+        const teamId = document.getElementById('assignTeamSelect').value;
+        const fee = parseInt(document.getElementById('assignFee').value) || 0;
+        if (!playerId || !teamId) { showToast('Select a player and a team.', 'error'); return; }
+        const player = window.citplDB.db.players.find(p => p.id === playerId);
+        const team = window.citplDB.db.teams.find(t => t.id === teamId);
+        if (!player || !team) { showToast('Player or team not found.', 'error'); return; }
+        if (!confirm(`Assign ${player.name} to ${team.name} for ${money(fee)}?`)) return;
+
+        player.teamId = teamId;
+        player.auctionPrice = fee;
+        player.status = 'SOLD';
+        player.soldAt = new Date().toISOString();
+        team.remainingPurse = Math.max(0, (team.remainingPurse || 0) - fee);
+        team.totalSpent = (team.totalSpent || 0) + fee;
+        team.squadCount = (team.squadCount || 0) + 1;
+        window.citplDB.save();
+        showToast(`${player.name} assigned to ${team.name}!`, 'success');
+    }
+
+    function handleSaveSettings(e) {
+        e.preventDefault();
+        const s = window.citplDB.db.settings;
+        s.auctionTimerSeconds = parseInt(document.getElementById('setTimer').value) || 15;
+        s.defaultBidIncrement = parseInt(document.getElementById('setBidIncrement').value) || 100;
+        s.maxSquadSize = parseInt(document.getElementById('setMaxSquad').value) || 15;
+        s.teamPurse = parseInt(document.getElementById('setPurse').value) || 10000;
+        s.timerExtensionSeconds = parseInt(document.getElementById('setExtension').value) || 10;
+        window.citplDB.db.season.maxSquadSize = s.maxSquadSize;
+        window.citplDB.save();
+        showToast('Settings saved successfully!', 'success');
+    }
+
+    function handleAssignScorekeeper() {
+        const email = document.getElementById('skEmail').value.trim();
+        if (!email) { showToast('Enter a valid email.', 'error'); return; }
+        const result = window.citplDB.assignScorekeeperToMatch('match_105', email);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function toggleLock() {
+        const isLocked = window.citplDB.db.liveMatch.isLockedByAdmin;
+        const result = window.citplDB.toggleMatchLockByAdmin('match_105', !isLocked);
+        showToast(result.message, result.success ? 'success' : 'error');
+    }
+
+    function signOut() {
+        window.citplDB.setCurrentUser(null);
+        window.location.href = 'login.html';
+    }
+
+    // ══════════════════════════════════════════════
+    //  REALTIME LOOP
+    // ══════════════════════════════════════════════
+    function liveRefresh() {
+        // Refresh current tab data
+        if (currentTab) renderCurrentTab();
+    }
+
+    window.citplDB.subscribe(liveRefresh);
+    window.addEventListener('storage', liveRefresh);
+    setInterval(liveRefresh, 1000);
+
+    // ══════════════════════════════════════════════
+    //  LOGIN SCREEN
+    // ══════════════════════════════════════════════
+    function showLoginScreen() {
+        document.getElementById('loginScreen').style.display = 'block';
+        document.getElementById('tabBar').style.display = 'none';
+        document.getElementById('tabContent').style.display = 'none';
+        document.getElementById('userBadge').textContent = 'Guest';
+
+        document.getElementById('quickOwnerBtns').textContent =
+            'Quick login is disabled. Sign in with your own account credentials.';
+    }
+
+    function handleManualLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+        const errEl = document.getElementById('loginError');
+        errEl.style.display = 'none';
+        if (!email || !pass) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+        const res = window.citplDB.login(email, pass);
+        if (res.success) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('tabBar').style.display = '';
+            document.getElementById('tabContent').style.display = '';
+            currentTeam = null;
+            init();
+        } else {
+            errEl.textContent = res.message;
+            errEl.style.display = 'block';
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  BOOT
+    // ══════════════════════════════════════════════
+    init();
+    </script>
+</body>
+</html>

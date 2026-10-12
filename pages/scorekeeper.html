@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>CITPL Cricket Scorer & Umpire Suite 2026</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css?v=20261010">
+    <style>
+        :root {
+            --navy: #0A2A6B;
+            --blue: #0B4FB3;
+            --purple: #6A2C91;
+            --purple-light: #f3e8ff;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --ink: #0f172a;
+            --mut: #64748b;
+            --line: #e2e8f0;
+            --gold: #f59e0b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .heading-font {
+            font-family: 'Barlow Condensed', sans-serif;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: #081a42;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Scorekeeper Header */
+        .scorer-nav {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+            border-bottom: 4px solid var(--purple);
+            color: #fff;
+            padding: 12px 0;
+            box-shadow: 0 4px 16px rgba(10, 42, 107, 0.15);
+        }
+
+        .scorer-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Container */
+        .main-wrapper {
+            flex: 1;
+            max-width: 1240px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 16px 80px;
+        }
+
+        /* Card System */
+        .sk-card {
+            background: var(--card-bg);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .sk-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .sk-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Big Score Display */
+        .score-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);
+            border-left: 5px solid var(--blue);
+        }
+
+        .score-big {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(38px, 6vw, 56px);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .score-overs {
+            font-size: clamp(20px, 3vw, 28px);
+            color: #94a3b8;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .badge-rate {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 6px 14px;
+            text-align: center;
+        }
+
+        .target-banner {
+            background: rgba(106, 44, 145, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-top: 12px;
+            color: #e9d5ff;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Modern Tables */
+        .sk-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+        }
+
+        .sk-table th {
+            color: var(--mut);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 6px;
+            border-bottom: 2px solid var(--line);
+            text-align: right;
+        }
+
+        .sk-table td {
+            padding: 10px 6px;
+            border-bottom: 1px solid var(--line);
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .sk-table th:first-child, .sk-table td:first-child {
+            text-align: left;
+            padding-left: 0;
+        }
+
+        .sk-table tr.active-striker {
+            background-color: #f0f7ff;
+        }
+
+        .sk-table tr.active-striker td {
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .striker-star {
+            color: var(--gold);
+            font-size: 1.1rem;
+            margin-left: 4px;
+        }
+
+        /* Timeline Balls */
+        .over-timeline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 0;
+        }
+
+        .ball-bubble {
+            min-width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--line);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .ball-bubble.f { background: #fef3c7; color: #92400e; border-color: #f59e0b; font-weight: 800; }
+        .ball-bubble.s { background: #dbeafe; color: #1e40af; border-color: #3b82f6; font-weight: 800; }
+        .ball-bubble.w { background: #fee2e2; color: #991b1b; border-color: #ef4444; font-weight: 800; }
+        .ball-bubble.x { background: #f3e8ff; color: #6b21a8; border-color: #a855f7; }
+
+        /* Keypad & Buttons */
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn-run {
+            height: 60px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            background: #ffffff;
+            color: var(--navy);
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            cursor: pointer;
+        }
+
+        .btn-run:hover {
+            background: #f1f5f9;
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-run:active {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+            transform: scale(0.96);
+        }
+
+        .btn-boundary-four {
+            color: #15803d;
+            border-color: #86efac;
+            background: #f0fdf4;
+        }
+
+        .btn-boundary-six {
+            color: #b45309;
+            border-color: #fde68a;
+            background: #fffbeb;
+        }
+
+        /* Checkbox Buttons */
+        .checkbox-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .sk-check-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .sk-check-btn.active {
+            background: var(--purple-light);
+            border-color: var(--purple);
+            color: var(--purple);
+            box-shadow: 0 0 0 2px rgba(106, 44, 145, 0.2);
+        }
+
+        .sk-check-btn.wicket.active {
+            background: #fee2e2;
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Action Buttons Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .btn-sk-action {
+            padding: 10px 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--navy);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .btn-sk-action:hover {
+            background: #f8fafc;
+            border-color: var(--blue);
+        }
+
+        .btn-sk-purple {
+            background: var(--purple);
+            color: #fff;
+            border-color: var(--purple);
+        }
+
+        .btn-sk-purple:hover {
+            background: #531f73;
+            color: #fff;
+        }
+
+        /* Bottom Nav Bar */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid var(--line);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+        }
+
+        .bottom-nav-container {
+            width: 100%;
+            max-width: 1240px;
+            display: flex;
+        }
+
+        .bottom-nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--mut);
+            cursor: pointer;
+            border-top: 3px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bottom-nav-btn.active {
+            color: var(--blue);
+            border-top-color: var(--blue);
+            background: #f0f7ff;
+        }
+
+        /* Autocomplete Suggestions */
+        .sg-box {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            margin-top: -6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            position: relative;
+            z-index: 100;
+        }
+
+        .sg-item {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--blue);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.15s ease;
+        }
+
+        .sg-item:hover {
+            background-color: #f0f7ff;
+        }
+
+        .sg-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Match Victory Screen */
+        .win-card {
+            text-align: center;
+            padding: 40px 20px;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .trophy-icon {
+            font-size: 80px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.4));
+        }
+
+        /* Custom Form Controls */
+        .form-label-custom {
+            font-weight: 700;
+            color: var(--navy);
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            font-size: 1rem;
+            color: var(--ink);
+            transition: border-color 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.15);
+        }
+
+        .option-pill-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .option-pill {
+            flex: 1;
+            padding: 12px;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .option-pill input {
+            display: none;
+        }
+
+        .option-pill.active {
+            border-color: var(--blue);
+            background: #f0f7ff;
+            color: var(--blue);
+            box-shadow: 0 0 0 2px rgba(11, 79, 179, 0.2);
+        }
+
+        /* Grand Victory Celebration */
+        #grandCelebrationOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 26, 68, 0.94) 0%, rgba(2, 6, 23, 0.98) 100%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            animation: fadeInOverlay 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes floatUpVictory {
+            0% {
+                transform: translateY(100vh) scale(0.4);
+                opacity: 0;
+                filter: blur(10px);
+            }
+            60% {
+                transform: translateY(-5vh) scale(1.1);
+                opacity: 1;
+                filter: blur(0);
+            }
+            80% {
+                transform: translateY(2vh) scale(0.98);
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px #ffd700, 0 0 40px #ff9900, 0 0 80px #ff4500;
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 30px #ffffff, 0 0 60px #ffd700, 0 0 100px #ff9900;
+                transform: scale(1.03);
+            }
+        }
+
+        .celebration-content {
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+            animation: floatUpVictory 1.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            max-width: 900px;
+            width: 90%;
+        }
+
+        .celebration-trophy {
+            font-size: clamp(70px, 12vw, 110px);
+            display: inline-block;
+            filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.8));
+            animation: trophyBounce 2s infinite ease-in-out;
+        }
+
+        @keyframes trophyBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .champion-badge-top {
+            background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6, #3b82f6);
+            background-size: 300% 300%;
+            animation: rainbowGrad 4s ease infinite;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: 3px;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: clamp(14px, 2.5vw, 20px);
+            text-transform: uppercase;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        @keyframes rainbowGrad {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .winning-team-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(36px, 8vw, 76px);
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.1;
+            margin: 10px 0;
+            animation: pulseGlow 2.5s infinite ease-in-out 1.6s;
+            background: linear-gradient(180deg, #ffffff 0%, #ffd700 70%, #ff8c00 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .winning-sub-text {
+            color: #e2e8f0;
+            font-size: clamp(18px, 3.5vw, 28px);
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .celebration-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn-celebration {
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-celebration-gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
+            color: #0f172a;
+        }
+
+        .btn-celebration-gold:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 28px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-celebration-outline {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-celebration-outline:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+        }
+
+        /* Floating Balloons System */
+        .balloon-stage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -150px;
+            width: 50px;
+            height: 65px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            animation: floatUpBalloon 8s linear infinite;
+            opacity: 0.92;
+            box-shadow: inset -6px -6px 12px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid inherit;
+        }
+
+        .balloon .string {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 1.5px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.6);
+            transform-origin: top center;
+            animation: stringWave 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatUpBalloon {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.95; }
+            90% { opacity: 0.95; }
+            100% { transform: translateY(-120vh) rotate(20deg); opacity: 0; }
+        }
+
+        @keyframes stringWave {
+            0% { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. TOP BAR -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div>
+                <i class="fas fa-phone me-1"></i> +91 9414200619 &nbsp;&nbsp;
+                <i class="fas fa-envelope me-1"></i> citpl@cit.ac.in &nbsp;&nbsp;
+                <a href="https://citabu.ac.in/" target="_blank"><i class="fas fa-globe me-1"></i> CIT Abu Road</a>
+                &nbsp;&nbsp;
+                <span class="open-now-badge me-2 ms-1">UMPIRE & SCORER CONSOLE</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="live.html" target="_blank" class="text-info fw-bold"><i class="fas fa-tv me-1"></i> Open Live Public Screen</a>
+                <a href="admin.html" class="text-danger fw-bold"><i class="fas fa-user-shield me-1"></i> Admin Suite</a>
+                <a href="../index.html" class="text-white"><i class="fas fa-home me-1"></i> Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SCORER NAV HEADER -->
+    <nav class="scorer-nav">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <a href="../index.html" class="text-white text-decoration-none d-flex align-items-center gap-2">
+                    <img src="../assets/citpl-logo.png" alt="CITPL Logo" class="cit-logo" style="width:40px;height:40px;border-radius:6px;">
+                    <div>
+                        <div class="scorer-title">CITPL 2026 CRICKET SCORER</div>
+                        <div style="font-size:0.75rem; color:#cbd5e1;">Official Match Management & Scoring Console</div>
+                    </div>
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-light d-none d-md-inline-flex align-items-center gap-1" onclick="go('new')">
+                    <i class="fas fa-plus-circle"></i> New Match
+                </button>
+                <button class="btn btn-sm btn-light text-primary fw-bold d-none d-md-inline-flex align-items-center gap-1" onclick="go('hist')">
+                    <i class="fas fa-history"></i> Match History
+                </button>
+                <a href="live.html" target="_blank" class="btn btn-sm btn-warning fw-bold d-inline-flex align-items-center gap-1">
+                    <i class="fas fa-broadcast-tower"></i> Live Scorecard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. MAIN DYNAMIC APP CONTAINER -->
+    <main class="main-wrapper">
+        <div id="app"></div>
+    </main>
+
+    <!-- 4. BOTTOM TAB NAVIGATION -->
+    <nav class="bottom-nav-bar">
+        <div class="bottom-nav-container" id="nv"></div>
+    </nav>
+
+<script src="../js/firebase-config.js"></script>
+<script>
+var KEY = "citpl_scorer_v2", DB = { m: [] }, M = null, V = "new", H = [], F = {};
+// Admin & Assigned Scorekeeper access guard
+const __storedUser = window.citplDB && typeof window.citplDB.getCurrentUser === 'function' ? window.citplDB.getCurrentUser() : null;
+const __account = __storedUser && window.citplDB.db && Array.isArray(window.citplDB.db.users)
+    ? window.citplDB.db.users.find(user => user.email && user.email.toLowerCase() === __storedUser.email.toLowerCase())
+    : null;
+const __currentUser = __account
+    ? { ...__storedUser, role: __account.role, teamId: __account.teamId, assignedMatch: __account.assignedMatch }
+    : __storedUser;
+if (__account && (__storedUser.role !== __account.role || __storedUser.assignedMatch !== __account.assignedMatch)) {
+    window.citplDB.setCurrentUser(__currentUser);
+}
+const __role = __currentUser ? window.citplDB.normalizeRole(__currentUser.role) : '';
+if (!__currentUser) {
+    window.location.replace('login.html');
+} else if (__role !== 'ADMIN' && __role !== 'SCOREKEEPER') {
+    window.location.replace('../index.html');
+}
+
+try { DB = JSON.parse(localStorage.getItem(KEY)) || DB; } catch(x) {}
+
+// Sync to both scorer database and CITPL_SCORE (for live.html)
+function syncLivePublic() {
+    if(!M) return;
+    try {
+        var I = cur();
+        var host = M.t[0];
+        var visitor = M.t[1];
+        var battingTeam = M.t[I.bat];
+        var fieldingTeam = M.t[1 - I.bat];
+        
+        var battersList = Object.keys(I.bt).map(function(name) {
+            var b = I.bt[name];
+            return {
+                name: name,
+                runs: b.r || 0,
+                balls: b.b || 0,
+                fours: b.f || 0,
+                sixes: b.s || 0,
+                active: (name === I.st || name === I.ns),
+                out: b.out ? true : false
+            };
+        });
+
+        var bowlersList = Object.keys(I.bw).map(function(name) {
+            var bw = I.bw[name];
+            return {
+                name: name,
+                balls: bw.b || 0,
+                maidens: 0,
+                runs: bw.r || 0,
+                wickets: bw.w || 0,
+                active: (name === I.bo)
+            };
+        });
+
+        var fowList = (I.fow || []).map(function(f, idx) {
+            var scoreParts = (f.sc || "0/0").split("/");
+            return {
+                name: f.n,
+                score: scoreParts[0] || 0,
+                wkts: scoreParts[1] || (idx + 1),
+                over: f.o
+            };
+        });
+
+        var targetVal = (M.i === 1 && M.inn[0]) ? (M.inn[0].runs + 1) : 0;
+
+        var liveState = {
+            match: {
+                hostTeam: host,
+                visitorTeam: visitor,
+                tossWon: M.toss.indexOf(host) >= 0 ? 'host' : 'visitor',
+                optedTo: M.toss.toLowerCase().indexOf('bat') >= 0 ? 'bat' : 'bowl',
+                overs: M.ov || 16,
+                isComplete: !!M.res,
+                resultText: M.res || ''
+            },
+            innings: {
+                battingTeam: battingTeam,
+                inningNumber: M.i + 1,
+                runs: I.runs,
+                wickets: I.wk,
+                balls: I.balls,
+                target: targetVal
+            },
+            batters: battersList,
+            bowlers: bowlersList,
+            fow: fowList,
+            timeline: I.ob || []
+        };
+        localStorage.setItem('CITPL_SCORE', JSON.stringify(liveState));
+    } catch(e) {
+        console.error("Live public sync error:", e);
+    }
+}
+
+function save() {
+    try {
+        if(M) {
+            var k = DB.m.findIndex(function(a){ return a.id == M.id; });
+            if(k < 0) DB.m.unshift(M);
+            else DB.m[k] = M;
+            syncLivePublic();
+        }
+        localStorage.setItem(KEY, JSON.stringify(DB));
+    } catch(x){}
+}
+
+function e(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+    });
+}
+
+function ov(b) { return Math.floor(b/6) + "." + (b % 6); }
+function cur() { return M.inn[M.i]; }
+function val(id) { var x = document.getElementById(id); return x ? x.value.trim() : ""; }
+function newInn(b) {
+    return {
+        bat: b,
+        runs: 0,
+        wk: 0,
+        balls: 0,
+        e: { wd: 0, nb: 0, b: 0, lb: 0 },
+        bt: {},
+        bw: {},
+        st: "",
+        ns: "",
+        bo: "",
+        ob: [],
+        fow: [],
+        lastLegal: true,
+        p: { r: 0, b: 0 },
+        ovl: []
+    };
+}
+
+function bt(n) {
+    var I = cur();
+    if(!I.bt[n]) I.bt[n] = { r: 0, b: 0, f: 0, s: 0, out: "" };
+}
+
+function bwl(n) {
+    var I = cur();
+    if(!I.bw[n]) I.bw[n] = { b: 0, r: 0, w: 0 };
+}
+
+var SG = {};
+function roster(team) {
+    var k = String(team).trim().toLowerCase(), r = {};
+    DB.m.concat(M && DB.m.indexOf(M) < 0 ? [M] : []).forEach(function(m){
+        m.inn.forEach(function(i){
+            if(String(m.t[i.bat]).trim().toLowerCase() == k) Object.keys(i.bt).forEach(function(n){ r[n] = 1; });
+            if(String(m.t[1-i.bat]).trim().toLowerCase() == k) Object.keys(i.bw).forEach(function(n){ r[n] = 1; });
+        });
+    });
+    return Object.keys(r);
+}
+
+function sug(id) {
+    var el = document.getElementById(id), q = el.value.trim().toLowerCase(), d = document.getElementById("sg_" + id);
+    if(!d) {
+        d = document.createElement("div");
+        d.id = "sg_" + id;
+        d.className = "sg-box";
+        el.parentNode.insertBefore(d, el.nextSibling);
+    }
+    if(!q || !M) { d.innerHTML = ""; return; }
+    var I = cur(), isB = (id == "bo"), team = isB ? M.t[1 - I.bat] : M.t[I.bat], skip = {};
+    if(!isB) {
+        Object.keys(I.bt).forEach(function(n){ skip[n.toLowerCase()] = 1; });
+        ["st","ns","nb"].forEach(function(o){
+            if(o != id) {
+                var x = document.getElementById(o);
+                if(x && x.value.trim()) skip[x.value.trim().toLowerCase()] = 1;
+            }
+        });
+    }
+    var L = roster(team).filter(function(n){
+        var l = n.toLowerCase();
+        return !skip[l] && l != q && l.indexOf(q) > -1;
+    });
+    L.sort(function(a,b){
+        return (a.toLowerCase().indexOf(q) == 0 ? 0 : 1) - (b.toLowerCase().indexOf(q) == 0 ? 0 : 1) || a.localeCompare(b);
+    });
+    L = L.slice(0, 5);
+    SG[id] = L;
+    d.innerHTML = L.map(function(n, i){
+        var j = n.toLowerCase().indexOf(q);
+        return '<div class="sg-item" onclick="pick(\'' + id + '\',' + i + ')">' +
+            e(n.slice(0, j)) + '<b>' + e(n.slice(j, j + q.length)) + '</b>' + e(n.slice(j + q.length)) +
+            '</div>';
+    }).join("");
+}
+
+function pick(id, i) {
+    document.getElementById(id).value = SG[id][i];
+    var d = document.getElementById("sg_" + id);
+    if(d) d.innerHTML = "";
+}
+
+function go(v) { V = v; render(); }
+
+function nav() {
+    var t = [
+        ["new", '<i class="fas fa-plus-circle"></i> New Match'],
+        ["score", '<i class="fas fa-play-circle"></i> Live Console'],
+        ["card", '<i class="fas fa-clipboard-list"></i> Scorecard'],
+        ["teams", '<i class="fas fa-users"></i> Teams'],
+        ["hist", '<i class="fas fa-history"></i> History']
+    ];
+    document.getElementById("nv").innerHTML = t.map(function(a){
+        var isActive = (V == a[0]) || (a[0] == 'score' && ["score","open","bowler","wk","brk","win"].indexOf(V) > -1);
+        return '<button class="bottom-nav-btn ' + (isActive ? "active" : "") + '" onclick="go(\'' + a[0] + '\')">' + a[1] + '</button>';
+    }).join("");
+}
+
+/* ---------- 1. NEW MATCH SCREEN ---------- */
+function selectPill(groupName, el) {
+    var parent = el.closest('.option-pill-group');
+    if(!parent) return;
+    parent.querySelectorAll('.option-pill').forEach(function(p){ p.classList.remove('active'); });
+    el.classList.add('active');
+    var input = el.querySelector('input');
+    if(input) input.checked = true;
+}
+
+function quickSetTeam(h, v) {
+    document.getElementById("h").value = h;
+    document.getElementById("v").value = v;
+    upd();
+}
+
+function upd() {
+    var a = val("h") || "Host Team", b = val("v") || "Visitor Team";
+    var t0 = document.getElementById("t0_label");
+    var t1 = document.getElementById("t1_label");
+    if(t0) t0.textContent = a;
+    if(t1) t1.textContent = b;
+}
+
+function startNew() {
+    var h = val("h") || "Host Team", v = val("v") || "Visitor Team", o = +val("o") || 16;
+    var tossInput = document.querySelector('input[name=toss]:checked');
+    var optInput = document.querySelector('input[name=opt]:checked');
+    var toss = tossInput ? +tossInput.value : 0;
+    var opt = optInput ? optInput.value : "bat";
+    var first = opt == "bat" ? toss : 1 - toss;
+    
+    M = {
+        id: Date.now(),
+        d: new Date().toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }),
+        t: [h, v],
+        ov: o,
+        i: 0,
+        inn: [newInn(first)],
+        res: "",
+        toss: [h, v][toss] + " won the toss and opted to " + (opt == "bat" ? "Bat" : "Bowl") + " first."
+    };
+    DB.ov = o;
+    H = [];
+    F = {};
+    save();
+    go("open");
+}
+
+function sNew() {
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h2 class="sk-card-title"><i class="fas fa-trophy text-warning"></i> Start New Match Setup</h2>
+                    <span class="badge bg-primary px-3 py-2">CITPL Season 2026</span>
+                </div>
+
+                <!-- Quick Select Registered Teams -->
+                <div class="mb-3">
+                    <label class="form-label-custom text-muted"><i class="fas fa-bolt text-warning me-1"></i> Quick Preset Matchup</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="quickSetTeam('Royal CIT', 'CIT Warriors')">Royal CIT vs CIT Warriors</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="quickSetTeam('Abu Titans', 'Phoenix XI')">Abu Titans vs Phoenix XI</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="quickSetTeam('Tech Strikers', 'Thunderbolts')">Tech Strikers vs Thunderbolts</button>
+                    </div>
+                </div>
+
+                <!-- Team Names Input -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label-custom"><i class="fas fa-shield-alt text-primary me-1"></i> Host / Team 1 Name</label>
+                        <input type="text" id="h" class="form-control-custom" placeholder="e.g. Royal CIT" oninput="upd()" value="Royal CIT">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom"><i class="fas fa-shield-alt text-danger me-1"></i> Visitor / Team 2 Name</label>
+                        <input type="text" id="v" class="form-control-custom" placeholder="e.g. CIT Warriors" oninput="upd()" value="CIT Warriors">
+                    </div>
+                </div>
+
+                <!-- Toss Selection -->
+                <div class="mb-4">
+                    <label class="form-label-custom"><i class="fas fa-coins text-warning me-1"></i> Toss Won By?</label>
+                    <div class="option-pill-group">
+                        <label class="option-pill active" onclick="selectPill('toss', this)">
+                            <input type="radio" name="toss" value="0" checked>
+                            <i class="fas fa-check-circle me-1"></i> <span id="t0_label">Royal CIT</span>
+                        </label>
+                        <label class="option-pill" onclick="selectPill('toss', this)">
+                            <input type="radio" name="toss" value="1">
+                            <i class="fas fa-check-circle me-1"></i> <span id="t1_label">CIT Warriors</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Decision -->
+                <div class="mb-4">
+                    <label class="form-label-custom"><i class="fas fa-hand-pointer text-info me-1"></i> Opted To?</label>
+                    <div class="option-pill-group">
+                        <label class="option-pill active" onclick="selectPill('opt', this)">
+                            <input type="radio" name="opt" value="bat" checked>
+                            🏏 Bat First
+                        </label>
+                        <label class="option-pill" onclick="selectPill('opt', this)">
+                            <input type="radio" name="opt" value="bowl">
+                            ⚾ Bowl First
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Overs -->
+                <div class="mb-4">
+                    <label class="form-label-custom"><i class="fas fa-stopwatch text-success me-1"></i> Total Match Overs (Per Innings)</label>
+                    <div class="row align-items-center g-2">
+                        <div class="col-md-4">
+                            <input type="number" id="o" class="form-control-custom fw-bold fs-5 text-center" value="${DB.ov || 16}" min="1" max="50">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-primary flex-fill" onclick="document.getElementById('o').value=10">10 Overs</button>
+                                <button type="button" class="btn btn-outline-primary flex-fill" onclick="document.getElementById('o').value=16">16 Overs (CITPL Std)</button>
+                                <button type="button" class="btn btn-outline-primary flex-fill" onclick="document.getElementById('o').value=20">20 Overs</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button class="btn btn-primary w-100 py-3 fs-5 fw-bold rounded-3 shadow-sm" onclick="startNew()">
+                        <i class="fas fa-play-circle me-2"></i> Confirm & Proceed to Opening Players
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 2. SELECT OPENING PLAYERS ---------- */
+function openDone() {
+    var I = cur(), s = val("st"), n = val("ns"), b = val("bo");
+    if(!s || !n || !b) {
+        alert("Please enter Striker, Non-striker, and Opening Bowler names.");
+        return;
+    }
+    I.st = s; I.ns = n; I.bo = b;
+    bt(s); bt(n); bwl(b);
+    H = [];
+    save();
+    go("score");
+}
+
+function sOpen() {
+    var I = cur();
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h2 class="sk-card-title"><i class="fas fa-users-cog text-primary"></i> Select Opening Lineup</h2>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="go('new')">&larr; Back</button>
+                </div>
+
+                <div class="alert alert-info py-2 px-3 mb-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <strong>${e(M.t[I.bat])}</strong> is Batting &nbsp;|&nbsp; <strong>${e(M.t[1 - I.bat])}</strong> is Bowling
+                    </div>
+                    <span class="badge bg-primary">Innings ${M.i + 1}</span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom"><i class="fas fa-user text-success me-1"></i> Striker (Batsman 1 on Strike)</label>
+                    <input type="text" id="st" class="form-control-custom" autocomplete="off" oninput="sug(this.id)" placeholder="Enter striker player name">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom"><i class="fas fa-user text-info me-1"></i> Non-Striker (Batsman 2)</label>
+                    <input type="text" id="ns" class="form-control-custom" autocomplete="off" oninput="sug(this.id)" placeholder="Enter non-striker player name">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-custom"><i class="fas fa-baseball-ball text-danger me-1"></i> Opening Bowler</label>
+                    <input type="text" id="bo" class="form-control-custom" autocomplete="off" oninput="sug(this.id)" placeholder="Enter opening bowler name">
+                </div>
+
+                <button class="btn btn-primary w-100 py-3 fs-5 fw-bold rounded-3" onclick="openDone()">
+                    <i class="fas fa-check-circle me-2"></i> Start Scoring Match
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 3. MAIN LIVE SCORING DASHBOARD ---------- */
+function tg(k) { F[k] = !F[k]; render(); }
+
+function ball(r) {
+    var I = cur();
+    H.push(JSON.stringify(M));
+    if(!I.ovl) I.ovl = [];
+    if(!I.p) I.p = { r: 0, b: 0 };
+    var before = I.runs;
+    var B = I.bt[I.st], W = I.bw[I.bo], legal = !F.wd && !F.nb, lab = String(r), cls = "";
+
+    if(F.wd) {
+        I.runs += 1 + r;
+        I.e.wd += 1 + r;
+        W.r += 1 + r;
+        lab = (r ? r : "") + "Wd";
+        cls = "x";
+    } else if(F.nb) {
+        I.runs += 1 + r;
+        I.e.nb++;
+        W.r += 1;
+        B.b++;
+        if(F.by || F.lb) {
+            I.e[F.by ? "b" : "lb"] += r;
+        } else {
+            B.r += r; W.r += r;
+            if(r == 4) B.f++;
+            if(r == 6) B.s++;
+        }
+        lab = (r ? r : "") + "Nb";
+        cls = "x";
+    } else if(F.by || F.lb) {
+        I.runs += r;
+        I.e[F.by ? "b" : "lb"] += r;
+        B.b++;
+        lab = r + (F.by ? "B" : "Lb");
+        cls = "x";
+    } else {
+        I.runs += r;
+        B.r += r;
+        W.r += r;
+        B.b++;
+        if(r == 4) { B.f++; cls = "f"; }
+        if(r == 6) { B.s++; cls = "s"; }
+    }
+
+    if(F.wk) { lab += "W"; cls = "w"; }
+    if(legal) { I.balls++; W.b++; }
+
+    I.ob.push({ l: lab, c: cls });
+    I.lastLegal = legal;
+
+    var O = I.ovl[I.ovl.length - 1];
+    if(!O || O.done) {
+        O = { bo: I.bo, l: [], r: 0, done: false };
+        I.ovl.push(O);
+    }
+    O.l.push(lab);
+    O.r += I.runs - before;
+    I.p.r += I.runs - before;
+    if(legal) I.p.b++;
+
+    if(r % 2 == 1) {
+        var x = I.st; I.st = I.ns; I.ns = x;
+    }
+
+    var wk = F.wk;
+    F = {};
+    save();
+
+    if(wk) {
+        F.ob = 1;
+        go("wk");
+    } else {
+        after();
+    }
+}
+
+function custom() {
+    var r = parseInt(val("cr"), 10);
+    if(!isNaN(r) && r >= 0 && r <= 20) ball(r);
+}
+
+function retire() {
+    H.push(JSON.stringify(M));
+    F = { ret: 1 };
+    go("wk");
+}
+
+function wkDone() {
+    var I = cur(), how = val("how"), n = val("nb"), who = val("who"), ret = F.ret;
+    var all = how != "Retired" && (I.wk + 1 >= 10 || I.balls >= M.ov * 6 || (M.i == 1 && I.runs > M.inn[0].runs));
+    if(!n && !all) {
+        alert("Please enter the new batsman's name.");
+        return;
+    }
+    var out = I[who == "ns" ? "ns" : "st"], W = I.bw[I.bo], bo = I.bo;
+    var txt = {
+        Bowled: "b " + bo,
+        LBW: "lbw b " + bo,
+        Caught: "c b " + bo,
+        Stumped: "st b " + bo,
+        "Hit wicket": "hit wkt b " + bo,
+        "Run out": "run out",
+        Retired: "retired"
+    }[how];
+    I.bt[out].out = txt;
+    if(how != "Retired") {
+        I.wk++;
+        if(how != "Run out") W.w++;
+        I.fow.push({
+            n: out,
+            sc: I.runs + "/" + I.wk,
+            o: ov(I.balls),
+            p: (I.p ? I.p.r + " (" + I.p.b + ")" : "")
+        });
+    }
+    if(n) I.p = { r: 0, b: 0 };
+    if(n) {
+        bt(n);
+        if(who == "ns") I.ns = n;
+        else I.st = n;
+    }
+    F = {};
+    save();
+    if(ret) go("score");
+    else after();
+}
+
+function bowlDone() {
+    var b = val("bo");
+    if(!b) { alert("Please enter bowler name."); return; }
+    var I = cur();
+    I.bo = b;
+    bwl(b);
+    save();
+    go("score");
+}
+
+function after() {
+    var I = cur(), end = I.wk >= 10 || I.balls >= M.ov * 6 || (M.i == 1 && I.runs > M.inn[0].runs);
+    if(end) {
+        endInn();
+        return;
+    }
+    if(I.lastLegal && I.balls % 6 == 0 && I.balls > 0 && I.ob.length) {
+        var x = I.st; I.st = I.ns; I.ns = x;
+        I.ob = [];
+        I.ovl[I.ovl.length - 1].done = true;
+        save();
+        go("bowler");
+        return;
+    }
+    save();
+    go("score");
+}
+
+function endInn() {
+    var I = cur();
+    I.done = true;
+    if(M.i == 0) {
+        M.inn.push(newInn(1 - I.bat));
+        M.i = 1;
+        H = [];
+        F = {};
+        save();
+        go("brk");
+    } else {
+        var f = M.inn[0];
+        var winnerName = "";
+        if(I.runs > f.runs) {
+            winnerName = M.t[I.bat];
+            M.res = winnerName + " won by " + (10 - I.wk) + " wickets.";
+        } else if(I.runs < f.runs) {
+            winnerName = M.t[f.bat];
+            M.res = winnerName + " won by " + (f.runs - I.runs) + " runs.";
+        } else {
+            M.res = "Match tied.";
+            winnerName = "Both Teams (Tied)";
+        }
+        save();
+        go("win");
+        if(winnerName && winnerName !== "Both Teams (Tied)") {
+            triggerGrandCelebration(winnerName, M.res);
+        }
+    }
+}
+
+function undo() {
+    if(!H.length) { alert("No actions to undo."); return; }
+    M = JSON.parse(H.pop());
+    F = {};
+    save();
+    go("score");
+}
+
+function swap() {
+    var I = cur(), x = I.st;
+    I.st = I.ns;
+    I.ns = x;
+    save();
+    render();
+}
+
+function extras() { tg("ex"); }
+
+function sScore() {
+    var I = cur();
+    var crr = I.balls ? (I.runs * 6 / I.balls).toFixed(2) : "0.00";
+    var targetHtml = "";
+    if(M.i == 1) {
+        var tg = M.inn[0].runs + 1;
+        var left = M.ov * 6 - I.balls;
+        var need = tg - I.runs;
+        var rrr = left > 0 ? (need * 6 / left).toFixed(2) : "-";
+        targetHtml = `
+        <div class="target-banner">
+            <div><i class="fas fa-bullseye text-warning me-1"></i> Target: <strong>${tg}</strong> (${e(M.t[I.bat])} need <strong>${need}</strong> runs from <strong>${left}</strong> balls)</div>
+            <div>RRR: <strong>${rrr}</strong></div>
+        </div>`;
+    }
+
+    var strikerBatsman = I.bt[I.st] || { r:0, b:0, f:0, s:0 };
+    var nonStrikerBatsman = I.bt[I.ns] || { r:0, b:0, f:0, s:0 };
+    var currentBowler = I.bw[I.bo] || { b:0, r:0, w:0 };
+
+    var stSR = strikerBatsman.b ? (strikerBatsman.r * 100 / strikerBatsman.b).toFixed(1) : "0.0";
+    var nsSR = nonStrikerBatsman.b ? (nonStrikerBatsman.r * 100 / nonStrikerBatsman.b).toFixed(1) : "0.0";
+    var bwER = currentBowler.b ? (currentBowler.r * 6 / currentBowler.b).toFixed(1) : "0.0";
+
+    return `
+    <div class="row g-4">
+        <!-- LEFT COLUMN: LIVE SCORECARD & STATS -->
+        <div class="col-lg-7">
+            <!-- Score Hero Card -->
+            <div class="score-hero">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary px-3 py-1 fs-6">${e(M.t[I.bat])} (${M.i + 1}${M.i ? 'nd' : 'st'} Innings)</span>
+                    <div class="badge-rate">CRR: <strong>${crr}</strong></div>
+                </div>
+                <div class="d-flex align-items-baseline">
+                    <div class="score-big">${I.runs} - ${I.wk}</div>
+                    <div class="score-overs">(${ov(I.balls)} / ${M.ov} ov)</div>
+                </div>
+                ${targetHtml}
+            </div>
+
+            <!-- Current Batsmen Table -->
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h3 class="sk-card-title"><i class="fas fa-running text-primary"></i> Current Batters</h3>
+                    <button class="btn btn-sm btn-outline-primary" onclick="swap()"><i class="fas fa-exchange-alt me-1"></i> Swap Strike</button>
+                </div>
+                <table class="sk-table">
+                    <thead>
+                        <tr>
+                            <th style="width:45%">Batter</th>
+                            <th>R</th>
+                            <th>B</th>
+                            <th>4s</th>
+                            <th>6s</th>
+                            <th>SR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="active-striker">
+                            <td><strong>${e(I.st)}</strong> <span class="striker-star">🏏*</span></td>
+                            <td><strong>${strikerBatsman.r}</strong></td>
+                            <td>${strikerBatsman.b}</td>
+                            <td>${strikerBatsman.f}</td>
+                            <td>${strikerBatsman.s}</td>
+                            <td>${stSR}</td>
+                        </tr>
+                        <tr>
+                            <td>${e(I.ns)}</td>
+                            <td><strong>${nonStrikerBatsman.r}</strong></td>
+                            <td>${nonStrikerBatsman.b}</td>
+                            <td>${nonStrikerBatsman.f}</td>
+                            <td>${nonStrikerBatsman.s}</td>
+                            <td>${nsSR}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Current Bowler Table -->
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h3 class="sk-card-title"><i class="fas fa-baseball-ball text-danger"></i> Current Bowler</h3>
+                    <span class="badge bg-secondary">Bowling for ${e(M.t[1 - I.bat])}</span>
+                </div>
+                <table class="sk-table">
+                    <thead>
+                        <tr>
+                            <th style="width:45%">Bowler</th>
+                            <th>O</th>
+                            <th>M</th>
+                            <th>R</th>
+                            <th>W</th>
+                            <th>ER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong class="text-primary">${e(I.bo)}</strong></td>
+                            <td>${ov(currentBowler.b)}</td>
+                            <td>0</td>
+                            <td><strong>${currentBowler.r}</strong></td>
+                            <td><strong class="text-danger">${currentBowler.w}</strong></td>
+                            <td>${bwER}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Over Timeline -->
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h3 class="sk-card-title"><i class="fas fa-history text-info"></i> This Over (${ov(I.balls)})</h3>
+                    <span class="text-muted fs-6">${I.ob.length} Deliveries</span>
+                </div>
+                <div class="over-timeline">
+                    ${I.ob.length ? I.ob.map(function(b){ return '<span class="ball-bubble ' + b.c + '">' + b.l + '</span>'; }).join("") : '<span class="text-muted">Start of over</span>'}
+                </div>
+            </div>
+
+            <!-- Partnership / Extras Toggles Area -->
+            ${F.pt ? `
+            <div class="sk-card bg-light">
+                <div class="sk-card-header">
+                    <h4 class="sk-card-title"><i class="fas fa-handshake text-success"></i> Partnership Details</h4>
+                    <button class="btn btn-sm btn-close" onclick="tg('pt')"></button>
+                </div>
+                <div class="mb-2"><strong>Current Partnership:</strong> ${e(I.st)} & ${e(I.ns)}: <strong>${(I.p||{r:0}).r}</strong> runs (${(I.p||{b:0}).b} balls)</div>
+                ${(I.fow||[]).map(function(f,i){ return '<div class="text-muted small py-1 border-top">' + (i+1) + ' Wkt: ' + e(f.n) + ' out at ' + f.sc + ' (' + f.o + ' ov) — ' + (f.p||"-") + '</div>'; }).join("")}
+            </div>` : ''}
+
+            ${F.ex ? `
+            <div class="sk-card bg-light">
+                <div class="sk-card-header">
+                    <h4 class="sk-card-title"><i class="fas fa-plus-circle text-warning"></i> Extras Breakdown</h4>
+                    <button class="btn btn-sm btn-close" onclick="tg('ex')"></button>
+                </div>
+                <div>Total Extras: <strong>${I.e.wd + I.e.nb + I.e.b + I.e.lb}</strong> &nbsp;(Wides: ${I.e.wd}, No Balls: ${I.e.nb}, Byes: ${I.e.b}, Leg Byes: ${I.e.lb})</div>
+            </div>` : ''}
+        </div>
+
+        <!-- RIGHT COLUMN: SCORING CONTROLS & KEYPAD -->
+        <div class="col-lg-5">
+            <div class="sk-card sticky-top" style="top: 80px; z-index: 10;">
+                <div class="sk-card-header">
+                    <h3 class="sk-card-title"><i class="fas fa-gamepad text-primary"></i> Scoring Controls</h3>
+                    <span class="badge bg-success">Active Delivery</span>
+                </div>
+
+                <!-- Extras Flags -->
+                <div class="checkbox-bar">
+                    <div class="sk-check-btn ${F.wd ? 'active' : ''}" onclick="tg('wd')">
+                        <i class="fas ${F.wd ? 'fa-check-circle' : 'fa-circle'}"></i> Wide
+                    </div>
+                    <div class="sk-check-btn ${F.nb ? 'active' : ''}" onclick="tg('nb')">
+                        <i class="fas ${F.nb ? 'fa-check-circle' : 'fa-circle'}"></i> No Ball
+                    </div>
+                    <div class="sk-check-btn ${F.by ? 'active' : ''}" onclick="tg('by')">
+                        <i class="fas ${F.by ? 'fa-check-circle' : 'fa-circle'}"></i> Byes
+                    </div>
+                    <div class="sk-check-btn ${F.lb ? 'active' : ''}" onclick="tg('lb')">
+                        <i class="fas ${F.lb ? 'fa-check-circle' : 'fa-circle'}"></i> Leg Byes
+                    </div>
+                    <div class="sk-check-btn wicket ${F.wk ? 'active' : ''}" onclick="tg('wk')">
+                        <i class="fas fa-skull-crossbones"></i> WICKET
+                    </div>
+                </div>
+
+                <!-- Secondary Actions -->
+                <div class="actions-grid">
+                    <button class="btn-sk-action" onclick="undo()"><i class="fas fa-undo me-1"></i> Undo</button>
+                    <button class="btn-sk-action" onclick="tg('pt')"><i class="fas fa-users me-1"></i> Partners</button>
+                    <button class="btn-sk-action" onclick="extras()"><i class="fas fa-plus me-1"></i> Extras</button>
+                    <button class="btn-sk-action btn-sk-purple" onclick="retire()"><i class="fas fa-user-clock me-1"></i> Retire</button>
+                </div>
+
+                <!-- Keypad -->
+                <div class="keypad-grid mb-3">
+                    <button class="btn-run" onclick="ball(0)">0</button>
+                    <button class="btn-run" onclick="ball(1)">1</button>
+                    <button class="btn-run" onclick="ball(2)">2</button>
+                    <button class="btn-run" onclick="ball(3)">3</button>
+                    <button class="btn-run btn-boundary-four" onclick="ball(4)">4</button>
+                    <button class="btn-run" onclick="ball(5)">5</button>
+                    <button class="btn-run btn-boundary-six" onclick="ball(6)">6</button>
+                    <button class="btn-run" onclick="tg('cu')"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+
+                <!-- Custom Runs Input if toggled -->
+                ${F.cu ? `
+                <div class="input-group mb-3">
+                    <input type="number" id="cr" class="form-control" placeholder="Custom runs (incl. overthrows)" min="0" max="20">
+                    <button class="btn btn-primary" onclick="custom()">Add Runs</button>
+                </div>` : ''}
+
+                <!-- Quick Scorecard & End Inning Actions -->
+                <div class="d-grid gap-2 pt-2 border-top">
+                    <button class="btn btn-outline-primary py-2" onclick="go('card')">
+                        <i class="fas fa-list-alt me-1"></i> View Full Detailed Scorecard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 4. FALL OF WICKET MODAL SCREEN ---------- */
+function sWk() {
+    var I = cur(), r = F.ret;
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="sk-card border-danger">
+                <div class="sk-card-header bg-danger text-white rounded-top p-3 mb-3">
+                    <h3 class="sk-card-title text-white"><i class="fas fa-skull-crossbones me-2"></i> ${r ? 'Retire Batsman' : 'Fall of Wicket (Dismissal)'}</h3>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">${r ? 'Reason for Retiring' : 'How Wicket Fell?'}</label>
+                    <select id="how" class="form-control-custom">
+                        ${r ? '<option>Retired</option>' : ["Bowled","Caught","LBW","Run out","Stumped","Hit wicket"].map(function(a){ return '<option>' + a + '</option>'; }).join("")}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">Who is Dismissed / Retiring?</label>
+                    <select id="who" class="form-control-custom">
+                        <option value="st">${e(I.st)} (Striker)</option>
+                        <option value="ns">${e(I.ns)} (Non-Striker)</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-custom">New Incoming Batter</label>
+                    <input type="text" id="nb" class="form-control-custom" autocomplete="off" oninput="sug(this.id)" placeholder="Enter player name">
+                </div>
+
+                <button class="btn btn-danger w-100 py-3 fs-5 fw-bold rounded-3" onclick="wkDone()">
+                    <i class="fas fa-check-circle me-2"></i> Confirm Wicket & Continue Match
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 5. END OF OVER / BOWLER CHANGE SCREEN ---------- */
+function sBowler() {
+    var I = cur();
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="sk-card border-primary">
+                <div class="sk-card-header bg-primary text-white rounded-top p-3 mb-3">
+                    <h3 class="sk-card-title text-white"><i class="fas fa-stopwatch me-2"></i> End of Over ${Math.floor(I.balls / 6)}</h3>
+                </div>
+
+                <div class="alert alert-secondary mb-3">
+                    <strong>Current Score:</strong> ${I.runs} / ${I.wk} (${ov(I.balls)} overs)
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-custom"><i class="fas fa-baseball-ball text-primary me-1"></i> Next Bowler for Over ${(Math.floor(I.balls/6) + 1)}</label>
+                    <input type="text" id="bo" class="form-control-custom" autocomplete="off" oninput="sug(this.id)" placeholder="Enter next bowler name">
+                </div>
+
+                <button class="btn btn-primary w-100 py-3 fs-5 fw-bold rounded-3" onclick="bowlDone()">
+                    <i class="fas fa-arrow-right me-2"></i> Continue Match
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 6. INNINGS BREAK SCREEN ---------- */
+function sBrk() {
+    var a = M.inn[0], tg = a.runs + 1;
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="sk-card text-center py-4">
+                <div class="badge bg-warning text-dark fs-6 px-3 py-2 mb-3">Innings Break Complete</div>
+                <h2 class="fw-bold mb-2">${e(M.t[a.bat])}</h2>
+                <div class="score-big text-primary mb-3">${a.runs} - ${a.wk} <span class="fs-4 text-muted">(${ov(a.balls)} ov)</span></div>
+                
+                <div class="card bg-light border-0 p-4 mb-4 text-start">
+                    <h4 class="text-primary fw-bold mb-2"><i class="fas fa-bullseye me-2"></i> Target Equation</h4>
+                    <p class="fs-5 mb-1"><strong>${e(M.t[1 - a.bat])}</strong> requires <strong>${tg} runs</strong> in ${M.ov} overs to win.</p>
+                    <p class="text-muted mb-0">Required Run Rate: <strong>${(tg / M.ov).toFixed(2)}</strong> RPO</p>
+                </div>
+
+                <button class="btn btn-primary py-3 px-5 fs-5 fw-bold rounded-pill" onclick="go('open')">
+                    <i class="fas fa-play me-2"></i> Start 2nd Innings
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 7. FULL SCORECARD VIEW ---------- */
+function tab(t) { F.tab = t; render(); }
+
+function shareTxt() {
+    return M.t[0] + " v/s " + M.t[1] + "\n" +
+        M.inn.map(function(i){ return M.t[i.bat] + ": " + i.runs + "/" + i.wk + " (" + ov(i.balls) + " ov)"; }).join("\n") +
+        (M.res ? "\n" + M.res : "") +
+        "\nCITPL 2026 Live Match Scorer";
+}
+
+function share() {
+    var t = shareTxt();
+    F.sh = t;
+    try {
+        if(navigator.share) {
+            navigator.share({ text: t }).catch(function(){});
+        } else if(navigator.clipboard) {
+            navigator.clipboard.writeText(t).catch(function(){});
+            alert("Scorecard summary copied to clipboard!");
+        }
+    } catch(x){}
+    render();
+}
+
+function tbl(I) {
+    var h = `
+    <div class="sk-card mb-3">
+        <div class="sk-card-header bg-light p-2 rounded mb-2">
+            <h4 class="m-0 fw-bold text-primary">${e(M.t[I.bat])}</h4>
+            <span class="badge bg-dark fs-6">${I.runs} / ${I.wk} (${ov(I.balls)} ov)</span>
+        </div>
+        <table class="sk-table mb-3">
+            <thead>
+                <tr>
+                    <th style="width:45%">Batter</th>
+                    <th>R</th>
+                    <th>B</th>
+                    <th>4s</th>
+                    <th>6s</th>
+                    <th>SR</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    for(var n in I.bt) {
+        var b = I.bt[n];
+        h += `
+        <tr>
+            <td>
+                <strong>${e(n)}</strong>
+                <div class="text-muted small">${b.out ? e(b.out) : (I.done || M.res ? "not out" : (n == I.st || n == I.ns ? "batting" : ""))}</div>
+            </td>
+            <td><strong>${b.r}</strong></td>
+            <td>${b.b}</td>
+            <td>${b.f}</td>
+            <td>${b.s}</td>
+            <td>${b.b ? (b.r * 100 / b.b).toFixed(1) : "0.0"}</td>
+        </tr>`;
+    }
+    var x = I.e;
+    h += `
+            <tr class="bg-light">
+                <td><strong>Extras</strong></td>
+                <td colspan="5"><strong>${x.wd + x.nb + x.b + x.lb}</strong> (b ${x.b}, lb ${x.lb}, w ${x.wd}, nb ${x.nb})</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Bowlers Table -->
+        <h5 class="fw-bold text-secondary mb-2"><i class="fas fa-baseball-ball me-1"></i> Bowling</h5>
+        <table class="sk-table">
+            <thead>
+                <tr>
+                    <th style="width:45%">Bowler</th>
+                    <th>O</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>ER</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    for(var m in I.bw) {
+        var w = I.bw[m];
+        h += `
+        <tr>
+            <td><strong>${e(m)}</strong></td>
+            <td>${ov(w.b)}</td>
+            <td><strong>${w.r}</strong></td>
+            <td><strong class="text-danger">${w.w}</strong></td>
+            <td>${w.b ? (w.r * 6 / w.b).toFixed(1) : "0.0"}</td>
+        </tr>`;
+    }
+    h += `</tbody></table>`;
+
+    if(I.fow && I.fow.length) {
+        h += `
+        <h5 class="fw-bold text-secondary mt-3 mb-2"><i class="fas fa-chart-line me-1"></i> Fall of Wickets</h5>
+        <div class="d-flex flex-wrap gap-2">
+            ${I.fow.map(function(f, i){
+                return '<span class="badge bg-light text-dark border p-2">' + (i + 1) + '-' + f.sc + ' (' + e(f.n) + ', ' + f.o + ' ov)</span>';
+            }).join("")}
+        </div>`;
+    }
+    h += `</div>`;
+    return h;
+}
+
+function ovTab(I) {
+    var h = `<div class="sk-card mb-3"><h4 class="text-primary fw-bold mb-3">${e(M.t[I.bat])} Over by Over</h4>`;
+    (I.ovl || []).forEach(function(o, i){
+        h += `
+        <div class="border-bottom py-2 d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Over ${i + 1}</strong> <span class="text-muted ms-2">${e(o.bo)} &bull; ${o.r} runs</span>
+            </div>
+            <div class="d-flex gap-1">
+                ${o.l.map(function(l){ return '<span class="ball-bubble">' + e(l) + '</span>'; }).join("")}
+            </div>
+        </div>`;
+    });
+    h += `</div>`;
+    return h;
+}
+
+function sCard() {
+    var t = F.tab || "sb";
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-11">
+            <div class="sk-card">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <div>
+                        <h2 class="sk-card-title fs-4">${e(M.t[0])} <span class="text-muted">vs</span> ${e(M.t[1])}</h2>
+                        <div class="text-muted small">${e(M.toss)}</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm ${t == 'sb' ? 'btn-primary' : 'btn-outline-primary'}" onclick="tab('sb')">Scoreboard</button>
+                        <button class="btn btn-sm ${t == 'ov' ? 'btn-primary' : 'btn-outline-primary'}" onclick="tab('ov')">Overs</button>
+                        <button class="btn btn-sm btn-outline-success" onclick="share()"><i class="fas fa-share-alt me-1"></i> Share</button>
+                    </div>
+                </div>
+
+                ${M.res ? `<div class="alert alert-success fw-bold fs-5 text-center"><i class="fas fa-trophy me-2"></i> ${e(M.res)}</div>` : ''}
+
+                ${F.sh ? `
+                <div class="mb-3">
+                    <textarea readonly class="form-control font-monospace" rows="4">${e(F.sh)}</textarea>
+                    <div class="form-text">Summary text copied to clipboard!</div>
+                </div>` : ''}
+
+                ${t == "ov" ? M.inn.map(ovTab).join("") : M.inn.map(tbl).join("")}
+
+                <div class="text-center pt-3">
+                    <button class="btn btn-primary px-4 py-2" onclick="go('score')"><i class="fas fa-arrow-left me-1"></i> Back to Live Scoring</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ---------- 8. MATCH WINNER SCREEN ---------- */
+function sWin() {
+    var winnerName = M.res ? M.res.split(" won")[0] : "Winning Team";
+    return `
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="win-card">
+                <div class="trophy-icon">🏆</div>
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6 mb-2">MATCH COMPLETED</span>
+                <h1 class="display-5 fw-bold text-primary mb-2">${e(winnerName)}</h1>
+                <p class="fs-4 text-secondary mb-4">${e(M.res)}</p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <button class="btn btn-warning py-3 px-4 fs-5 fw-bold rounded-pill text-dark" onclick="triggerGrandCelebration('${e(winnerName)}', '${e(M.res)}')">
+                        <i class="fas fa-magic me-2"></i> Replay Celebration 🎉
+                    </button>
+                    <button class="btn btn-primary py-3 px-4 fs-5 fw-bold rounded-pill" onclick="go('card')">
+                        <i class="fas fa-clipboard-list me-2"></i> View Full Scorecard
+                    </button>
+                    <button class="btn btn-outline-secondary py-3 px-4 fs-5 fw-bold rounded-pill" onclick="go('new')">
+                        <i class="fas fa-plus-circle me-2"></i> Start New Match
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+/* ========================================================
+   GRAND CELEBRATION FUNCTION (BALLOONS + FIREWORKS + FLOATING NAME)
+   ======================================================== */
+var celebrationInterval = null;
+
+function triggerGrandCelebration(teamName, resultText) {
+    closeGrandCelebration();
+
+    var overlay = document.createElement('div');
+    overlay.id = 'grandCelebrationOverlay';
+
+    // Balloon Container
+    var balloonStage = document.createElement('div');
+    balloonStage.className = 'balloon-stage';
+    balloonStage.id = 'balloonStage';
+    overlay.appendChild(balloonStage);
+
+    // Celebration Content with Rising Team Name
+    var content = document.createElement('div');
+    content.className = 'celebration-content';
+    content.innerHTML = `
+        <div class="champion-badge-top">🏆 CIT PREMIER LEAGUE 2026 CHAMPIONS 🏆</div>
+        <div class="celebration-trophy">🏆</div>
+        <h1 class="winning-team-title">${e(teamName)}</h1>
+        <div class="winning-sub-text">${e(resultText || "VICTORY & CHAMPIONSHIP CELEBRATION!")}</div>
+        <div class="celebration-btn-group">
+            <button class="btn-celebration btn-celebration-gold" onclick="closeGrandCelebration(); go('card');">
+                <i class="fas fa-list-alt me-2"></i> View Match Scorecard
+            </button>
+            <button class="btn-celebration btn-celebration-outline" onclick="closeGrandCelebration();">
+                <i class="fas fa-times me-2"></i> Close
+            </button>
+        </div>
+    `;
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+
+    // 1. Launch Continuous Fireworks & Confetti
+    startFireworksAndConfetti();
+
+    // 2. Launch Floating Balloons
+    startBalloons();
+}
+
+function closeGrandCelebration() {
+    if(celebrationInterval) {
+        clearInterval(celebrationInterval);
+        celebrationInterval = null;
+    }
+    var old = document.getElementById('grandCelebrationOverlay');
+    if(old && old.parentNode) {
+        old.parentNode.removeChild(old);
+    }
+}
+
+function startFireworksAndConfetti() {
+    if(typeof confetti !== 'function') return;
+
+    var duration = 12 * 1000;
+    var animationEnd = Date.now() + duration;
+
+    celebrationInterval = setInterval(function() {
+        var timeLeft = animationEnd - Date.now();
+        if(timeLeft <= 0) {
+            clearInterval(celebrationInterval);
+            celebrationInterval = null;
+            return;
+        }
+
+        var particleCount = 55 * (timeLeft / duration);
+
+        // Firecracker Bursts from Left & Right
+        confetti({
+            particleCount: particleCount,
+            angle: 60,
+            spread: 80,
+            origin: { x: 0, y: 0.8 },
+            colors: ['#ffd700', '#ff0055', '#00e5ff', '#ff9900', '#ffffff', '#76ff03']
+        });
+        confetti({
+            particleCount: particleCount,
+            angle: 120,
+            spread: 80,
+            origin: { x: 1, y: 0.8 },
+            colors: ['#ffd700', '#ff0055', '#00e5ff', '#ff9900', '#ffffff', '#76ff03']
+        });
+
+        // Sky fireworks burst from random center locations
+        if(Math.random() > 0.3) {
+            confetti({
+                particleCount: 40,
+                spread: 120,
+                startVelocity: 45,
+                origin: { x: 0.2 + Math.random() * 0.6, y: 0.1 + Math.random() * 0.4 },
+                colors: ['#ffeb3b', '#e91e63', '#9c27b0', '#00bcd4', '#4caf50', '#ff5722']
+            });
+        }
+    }, 350);
+}
+
+function startBalloons() {
+    var stage = document.getElementById('balloonStage');
+    if(!stage) return;
+
+    var colors = [
+        '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4', '#eab308'
+    ];
+
+    function createBalloon() {
+        if(!document.getElementById('grandCelebrationOverlay')) return;
+        var b = document.createElement('div');
+        b.className = 'balloon';
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        b.style.backgroundColor = color;
+        b.style.left = (Math.random() * 95) + '%';
+        
+        var sizeScale = 0.8 + Math.random() * 0.7;
+        b.style.width = (45 * sizeScale) + 'px';
+        b.style.height = (60 * sizeScale) + 'px';
+        
+        var dur = 6 + Math.random() * 5;
+        b.style.animationDuration = dur + 's';
+
+        var string = document.createElement('div');
+        string.className = 'string';
+        b.appendChild(string);
+
+        stage.appendChild(b);
+
+        setTimeout(function() {
+            if(b && b.parentNode) b.parentNode.removeChild(b);
+        }, dur * 1000);
+    }
+
+    // Initial flock of balloons
+    for(var i = 0; i < 22; i++) {
+        setTimeout(createBalloon, i * 200);
+    }
+
+    // Ongoing balloons release
+    var balloonSpawner = setInterval(function() {
+        if(!document.getElementById('grandCelebrationOverlay')) {
+            clearInterval(balloonSpawner);
+            return;
+        }
+        createBalloon();
+    }, 450);
+}
+
+/* ---------- 9. HISTORY SCREEN ---------- */
+function del(id) {
+    if(F.dl != id) { F.dl = id; render(); return; }
+    F.dl = 0;
+    DB.m = DB.m.filter(function(a){ return a.id != id; });
+    if(M && M.id == id) M = null;
+    save();
+    render();
+}
+
+function resume(id) {
+    M = DB.m.find(function(a){ return a.id == id; });
+    H = [];
+    F = {};
+    var I = cur();
+    go(M.res ? "card" : (I.st ? "score" : (M.i == 1 ? "brk" : "open")));
+}
+
+function view(id) {
+    M = DB.m.find(function(a){ return a.id == id; });
+    go("card");
+}
+
+function sHist() {
+    var h = `
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-11">
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h2 class="sk-card-title"><i class="fas fa-history text-primary"></i> Match History</h2>
+                    <span class="badge bg-secondary">${DB.m.length} Matches Logged</span>
+                </div>`;
+    
+    if(!DB.m.length) {
+        h += `<div class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3"></i><p class="fs-5">No matches recorded yet.</p><button class="btn btn-primary" onclick="go('new')">Start First Match</button></div>`;
+    }
+
+    DB.m.forEach(function(m){
+        h += `
+        <div class="card mb-3 border shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small"><i class="far fa-calendar-alt me-1"></i> ${e(m.d)}</span>
+                    <span class="badge ${m.res ? 'bg-success' : 'bg-warning text-dark'}">${m.res ? 'Finished' : 'In Progress'}</span>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        ${m.inn.map(function(i){
+                            return '<div class="d-flex justify-content-between py-1"><strong>' + e(m.t[i.bat]) + '</strong><span>' + i.runs + '/' + i.wk + ' (' + ov(i.balls) + ' ov)</span></div>';
+                        }).join("")}
+                        <div class="text-primary fw-bold mt-2">${e(m.res || m.toss)}</div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end">
+                        <button class="btn btn-sm btn-primary" onclick="${m.res ? 'view' : 'resume'}(${m.id})">${m.res ? 'Scoreboard' : 'Resume Scoring'}</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="del(${m.id})">${F.dl == m.id ? 'Confirm Delete?' : 'Delete'}</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    h += `</div></div></div>`;
+    return h;
+}
+
+/* ---------- 10. TEAMS SCREEN ---------- */
+function sTeams() {
+    var T = {};
+    DB.m.forEach(function(m){
+        m.inn.forEach(function(i){
+            var t = m.t[i.bat], o = m.t[1 - i.bat];
+            T[t] = T[t] || {};
+            T[o] = T[o] || {};
+            Object.keys(i.bt).forEach(function(n){ T[t][n] = 1; });
+            Object.keys(i.bw).forEach(function(n){ T[o][n] = 1; });
+        });
+    });
+    var k = Object.keys(T);
+    var h = `
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-11">
+            <div class="sk-card">
+                <div class="sk-card-header">
+                    <h2 class="sk-card-title"><i class="fas fa-users text-primary"></i> Teams & Player Database</h2>
+                    <span class="badge bg-primary">${k.length} Teams Registered</span>
+                </div>`;
+    if(!k.length) {
+        h += `<div class="text-center py-5 text-muted"><p class="fs-5">Teams will automatically populate after matches are scored.</p></div>`;
+    }
+    k.forEach(function(t){
+        var playersList = Object.keys(T[t]);
+        h += `
+        <div class="card mb-3 border">
+            <div class="card-body">
+                <h5 class="fw-bold text-primary mb-2"><i class="fas fa-shield-alt me-2"></i> ${e(t)}</h5>
+                <div class="d-flex flex-wrap gap-1">
+                    ${playersList.map(function(p){ return '<span class="badge bg-light text-dark border">' + e(p) + '</span>'; }).join("")}
+                </div>
+            </div>
+        </div>`;
+    });
+    h += `</div></div></div>`;
+    return h;
+}
+
+/* ---------- RENDER ROOT ---------- */
+function render() {
+    var s = {
+        brk: sBrk,
+        new: sNew,
+        open: sOpen,
+        bowler: sBowler,
+        wk: sWk,
+        score: sScore,
+        card: sCard,
+        win: sWin,
+        hist: sHist,
+        teams: sTeams
+    };
+    if(!M && ["brk", "open", "bowler", "wk", "score", "card", "win"].indexOf(V) > -1) {
+        V = "new";
+    }
+    document.getElementById("app").innerHTML = s[V] ? s[V]() : sNew();
+    nav();
+    window.scrollTo(0, 0);
+}
+
+render();
+</script>
+</body>
+</html>

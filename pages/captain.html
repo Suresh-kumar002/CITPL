@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captain Portal & Playing XI - CITPL 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css?v=20261010">
+</head>
+
+<body class="citpl-app">
+    <!-- Top Bar -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center gap-2">
+                <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='../index.html'" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </button>
+                <span id="captainDeskTitle"><i class="fas fa-crown text-warning me-2"></i> CAPTAIN & TEAM OWNER DESK</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="captainSessionName" class="badge bg-primary">Team Owner</span>
+                <a href="auction.html" class="text-warning fw-bold"><i class="fas fa-gavel me-1"></i> Live Auction Arena</a>
+                <button type="button" onclick="signOutCaptain()" class="btn btn-sm btn-outline-light"><i class="fas fa-right-from-bracket me-1"></i> Sign out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2 sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html">
+                <img src="../assets/citpl-logo.png" alt="CITPL Logo" class="cit-logo">
+                <div>
+                    <div class="institute-title">सीआईटी प्रीमियर लीग 2026</div>
+                    <div class="institute-subtitle">Captain Team Manager</div>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="auction.html" class="btn btn-warning btn-sm rounded-pill fw-bold text-dark"><i class="fas fa-gavel me-1"></i> Live Auction Arena</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Stats with High Contrast Labels -->
+    <div class="bg-dark text-white py-4">
+        <div class="container px-4">
+            <div class="row g-3 text-center">
+                <div class="col-md-3">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-4 border border-warning">
+                        <small class="text-warning fw-bold d-block text-uppercase">REMAINING PURSE</small>
+                        <h3 class="fw-bold text-warning mb-0" id="capPurse">₹6,400</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-4 border border-info">
+                        <small class="text-info fw-bold d-block text-uppercase">TOTAL SPENT</small>
+                        <h3 class="fw-bold text-info mb-0" id="capSpent">₹3,600</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-4 border border-success">
+                        <small class="text-success fw-bold d-block text-uppercase">SQUAD SIZE</small>
+                        <h3 class="fw-bold text-success mb-0" id="capSquadCount">8 / 15</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-4 border border-primary">
+                        <small class="text-primary fw-bold d-block text-uppercase">LEAGUE POINTS</small>
+                        <h3 class="fw-bold text-primary mb-0">6 Pts</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Squad & Playing XI Selector -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Left: Playing XI Selection -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-primary text-white p-3 rounded-top-4 d-flex justify-content-between align-items-center">
+                        <h5 id="playingXiTitle" class="fw-bold mb-0"><i class="fas fa-users-line me-2"></i> Playing XI Draft</h5>
+                        <button onclick="savePlayingXI()" class="btn btn-warning btn-sm fw-bold rounded-pill"><i class="fas fa-save me-1"></i> Save Draft</button>
+                    </div>
+                    <div class="card-body p-3">
+                        <p id="playingXiStatus" class="small text-muted mb-3" aria-live="polite"></p>
+                        <div id="playingXIList" class="list-group gap-2">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Full Squad List -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-dark text-white p-3 rounded-top-4">
+                        <h5 class="fw-bold mb-0"><i class="fas fa-shield-alt me-2"></i> Full Team Squad</h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="fullSquadList" class="list-group gap-2">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-shell.js"></script>
+    <script>
+        function renderCaptainDashboard() {
+            const currentUser = window.citplDB.getCurrentUser();
+            if (!currentUser || window.citplDB.normalizeRole(currentUser.role) !== "TEAM_OWNER" || !currentUser.teamId) {
+                window.location.href = "login.html";
+                return;
+            }
+            const team = window.citplDB.db.teams.find(t => t.id === currentUser.teamId);
+            if (!team) {
+                window.citplDB.setCurrentUser(null);
+                window.location.href = "login.html";
+                return;
+            }
+            const squad = window.citplDB.db.players.filter(p => p.teamId === team.id);
+            const selectedIds = Array.isArray(team.playingXI) ? team.playingXI : squad.slice(0, 11).map(player => player.id);
+            const selectedSquad = squad.filter(player => selectedIds.includes(player.id)).slice(0, 11);
+
+            document.getElementById("captainDeskTitle").innerHTML = `<i class="fas fa-crown text-warning me-2"></i> CAPTAIN & TEAM OWNER DESK - ${team.name.toUpperCase()}`;
+            document.getElementById("captainSessionName").innerText = `${currentUser.name} · ${team.shortName}`;
+            document.getElementById("playingXiTitle").innerText = `Playing XI Draft (${selectedSquad.length}/11)`;
+            document.getElementById("playingXiStatus").innerText = team.playingXIUpdatedAt
+                ? selectedSquad.length < 11
+                    ? `Draft saved. Add ${11 - selectedSquad.length} more roster players to complete an XI.`
+                    : "Playing XI saved with 11 players."
+                : `Select players from your squad. Current roster: ${squad.length}/11.`;
+
+            document.getElementById("capPurse").innerText = `₹${team.remainingPurse}`;
+            document.getElementById("capSpent").innerText = `₹${team.totalSpent}`;
+            document.getElementById("capSquadCount").innerText = `${squad.length} / ${window.citplDB.db.settings.maxSquadSize}`;
+
+            const xiList = document.getElementById("playingXIList");
+            const fullList = document.getElementById("fullSquadList");
+
+            xiList.innerHTML = selectedSquad.length ? selectedSquad.map((p, i) => `
+                <div class="list-group-item d-flex justify-content-between align-items-center p-2 rounded border">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle p-2">${i+1}</span>
+                        <div>
+                            <strong class="d-block text-dark small">${p.name}</strong>
+                            <small class="text-secondary fw-semibold" style="font-size: 11px;">${p.role}</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-success fw-bold">Playing XI</span>
+                </div>
+            `).join('') : '<div class="text-muted small p-2">No players selected for the lineup draft.</div>';
+
+            fullList.innerHTML = squad.map(p => `
+                <label class="list-group-item d-flex justify-content-between align-items-center p-2 rounded border">
+                    <div>
+                        <strong class="d-block text-dark small">${p.name}</strong>
+                        <small class="text-secondary fw-semibold">${p.role} • Auction: ₹${p.auctionPrice}</small>
+                    </div>
+                    <span class="d-flex align-items-center gap-2">
+                        <span class="badge bg-info text-dark fw-bold">${p.category}</span>
+                        <input class="form-check-input mt-0" type="checkbox" value="${p.id}" ${selectedIds.includes(p.id) ? "checked" : ""} onchange="handlePlayingXIChange(this)" aria-label="Select ${p.name} for playing XI">
+                    </span>
+                </label>
+            `).join('');
+        }
+
+        function savePlayingXI() {
+            const currentUser = window.citplDB.getCurrentUser();
+            const team = currentUser && window.citplDB.db.teams.find(item => item.id === currentUser.teamId);
+            if (!team) return;
+
+            const selectedIds = [...document.querySelectorAll("#fullSquadList input:checked")].map(input => input.value);
+            team.playingXI = selectedIds;
+            team.playingXIUpdatedAt = new Date().toISOString();
+            window.citplDB.save();
+            renderCaptainDashboard();
+        }
+
+        function handlePlayingXIChange(input) {
+            const selectedCount = document.querySelectorAll("#fullSquadList input:checked").length;
+            if (selectedCount > 11) {
+                input.checked = false;
+                document.getElementById("playingXiStatus").innerText = "A playing XI can include at most 11 players.";
+                return;
+            }
+            document.getElementById("playingXiTitle").innerText = `Playing XI Draft (${selectedCount}/11)`;
+            document.getElementById("playingXiStatus").innerText = selectedCount < 11
+                ? `Select ${11 - selectedCount} more players to complete an XI. You can save this as a draft.`
+                : "11 players selected. Save to update the lineup.";
+        }
+
+        function signOutCaptain() {
+            window.citplDB.setCurrentUser(null);
+            window.location.href = "login.html";
+        }
+
+        renderCaptainDashboard();
+    </script>
+</body>
+
+</html>

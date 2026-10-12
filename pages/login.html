@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#123d9a">
+    <title>Sign In - CIT Premier League 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css?v=20261010">
+    <style>
+        :root {
+            --cit-blue: #0756c9;
+            --cit-purple: #7825c7;
+            --cit-ink: #112b60;
+            --cit-muted: #75829b;
+        }
+
+        body.login-page {
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            background: #f1f5ff;
+            color: var(--cit-ink);
+            font-family: Inter, "Segoe UI", system-ui, sans-serif;
+        }
+
+        .login-stage {
+            position: relative;
+            display: flex;
+            min-height: 100vh;
+            min-height: 100svh;
+            flex-direction: column;
+            align-items: center;
+            padding: 34px 20px 100px;
+            isolation: isolate;
+            overflow: hidden;
+        }
+
+        .login-stage::before {
+            position: absolute;
+            z-index: -2;
+            top: 0;
+            left: -12%;
+            width: 124%;
+            height: min(390px, 42vh);
+            min-height: 260px;
+            background:
+                radial-gradient(ellipse at 78% 5%, rgba(127, 41, 200, 0.75), transparent 43%),
+                linear-gradient(125deg, #073c9a 5%, #164dc2 58%, #5925b4 100%);
+            border-radius: 0 0 50% 12% / 0 0 25% 13%;
+            content: "";
+        }
+
+        .login-stage::after {
+            position: absolute;
+            z-index: -1;
+            right: -12%;
+            bottom: -112px;
+            left: -12%;
+            height: 190px;
+            background: linear-gradient(110deg, #073d9d 8%, #0756c9 64%, #6723bd 100%);
+            border-top: 8px solid rgba(111, 40, 194, 0.9);
+            border-radius: 48% 52% 0 0 / 30% 33% 0 0;
+            box-shadow: 0 -8px 0 rgba(255, 255, 255, 0.9);
+            content: "";
+            transform: rotate(-2deg);
+        }
+
+        .home-link {
+            position: absolute;
+            top: 24px;
+            right: clamp(20px, 5vw, 56px);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .home-link:hover { color: #dbeafe; }
+
+        .brand-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 28px 0 26px;
+            text-align: center;
+        }
+
+        .brand-logo {
+            width: 164px;
+            height: 164px;
+            margin: 0 0 8px;
+            border-radius: 24px;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 20px rgba(15, 46, 111, 0.12));
+        }
+
+        .brand-title {
+            margin: 0;
+            color: #fff;
+            font-size: clamp(2.3rem, 8vw, 3.2rem);
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            line-height: 1.05;
+            text-shadow: 0 3px 12px rgba(8, 35, 94, 0.3);
+        }
+
+        .brand-subtitle {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 8px;
+            color: #f2f5ff;
+            font-size: 0.88rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+        }
+
+        .brand-subtitle::before,
+        .brand-subtitle::after {
+            width: 42px;
+            height: 2px;
+            background: var(--cit-purple);
+            content: "";
+        }
+
+        .brand-tagline {
+            margin: 10px 0 0;
+            color: var(--cit-muted);
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+        }
+
+        .login-card {
+            width: min(100%, 570px);
+            padding: clamp(22px, 5vw, 34px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 18px 55px rgba(36, 74, 151, 0.12);
+            backdrop-filter: blur(12px);
+        }
+
+        .login-heading {
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        .login-heading h2 {
+            margin: 0 0 5px;
+            color: var(--cit-ink);
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        .login-heading p {
+            margin: 0;
+            color: var(--cit-muted);
+            font-size: 0.9rem;
+        }
+
+        .login-field {
+            display: flex;
+            min-height: 60px;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 14px;
+            padding: 0 17px;
+            border: 1px solid #dce4f5;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.74);
+            box-shadow: inset 0 1px 2px rgba(33, 63, 120, 0.03);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .login-field:focus-within {
+            border-color: #7560d8;
+            box-shadow: 0 0 0 4px rgba(117, 96, 216, 0.12);
+        }
+
+        .login-field > i {
+            width: 20px;
+            color: #5d42c4;
+            font-size: 1.15rem;
+            text-align: center;
+        }
+
+        .login-field input {
+            width: 100%;
+            min-width: 0;
+            height: 58px;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: var(--cit-ink);
+            font-size: 1rem;
+        }
+
+        .login-field input::placeholder { color: #8490a7; opacity: 1; }
+
+        .password-toggle {
+            flex: 0 0 auto;
+            padding: 8px 0 8px 8px;
+            border: 0;
+            background: transparent;
+            color: #77849a;
+        }
+
+        .password-toggle:hover { color: var(--cit-purple); }
+
+        #loginAlert {
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .login-submit {
+            display: flex;
+            width: 100%;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 18px;
+            background: linear-gradient(105deg, #0756c9 0%, #3d3ac7 52%, #8124c5 100%);
+            box-shadow: 0 10px 22px rgba(64, 55, 188, 0.22);
+            color: #fff;
+            font-size: 1.15rem;
+            font-weight: 800;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .login-submit:hover {
+            box-shadow: 0 13px 26px rgba(64, 55, 188, 0.3);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .login-submit:focus-visible,
+        .password-toggle:focus-visible,
+        .register-link:focus-visible,
+        .home-link:focus-visible {
+            outline: 3px solid #f2a900;
+            outline-offset: 3px;
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0 16px;
+            color: #8290aa;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            height: 1px;
+            flex: 1;
+            background: #dce4f5;
+            content: "";
+        }
+
+        .register-prompt {
+            margin: 0;
+            color: #536582;
+            text-align: center;
+        }
+
+        .register-link {
+            margin-left: 6px;
+            color: #5631bb;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .register-link:hover { color: #0756c9; text-decoration: underline; }
+
+        @media (min-width: 768px) {
+            .login-stage { padding-top: 28px; }
+            .brand-block { margin-top: 14px; }
+            .brand-logo { width: 150px; height: 150px; }
+        }
+
+        @media (max-width: 480px) {
+            .login-stage { padding: 35px 18px 100px; }
+            .home-link { top: 16px; right: 18px; font-size: 0.82rem; }
+            .brand-block { margin: 28px 0 22px; }
+            .brand-logo { width: 142px; height: 142px; }
+            .brand-subtitle { gap: 9px; font-size: 0.72rem; letter-spacing: 0.15em; }
+            .brand-subtitle::before, .brand-subtitle::after { width: 28px; }
+            .brand-tagline { font-size: 0.92rem; }
+            .login-card { border-radius: 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="login-page">
+    <main class="login-stage">
+        <a class="home-link" href="../index.html"><i class="fas fa-arrow-left me-2"></i>Back to Home</a>
+
+        <header class="brand-block">
+            <img src="../assets/citpl-logo.png" alt="CIT Premier League crest" class="brand-logo">
+            <h1 class="brand-title">CITPL</h1>
+            <div class="brand-subtitle">CIT PREMIER LEAGUE</div>
+            <p class="brand-tagline">Play <span class="mx-2">•</span> Learn <span class="mx-2">•</span> Grow</p>
+        </header>
+
+        <section class="login-card" aria-labelledby="loginTitle">
+            <div class="login-heading">
+                <h2 id="loginTitle">Welcome back</h2>
+                <p>Sign in to continue to your CITPL account</p>
+            </div>
+
+            <div id="loginAlert" class="alert alert-danger d-none mb-3" role="alert" aria-live="polite"></div>
+
+            <form onsubmit="handleUserLoginSubmit(event)">
+                <label class="login-field" for="userEmailInput">
+                    <i class="far fa-envelope" aria-hidden="true"></i>
+                    <input type="email" id="userEmailInput" name="email" placeholder="Email Address"
+                        autocomplete="username" aria-label="Email address" required>
+                </label>
+
+                <label class="login-field" for="userPassInput">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    <input type="password" id="userPassInput" name="password" placeholder="Password"
+                        autocomplete="current-password" aria-label="Password" required>
+                    <button class="password-toggle" type="button" id="passwordToggle"
+                        aria-label="Show password" aria-pressed="false">
+                        <i class="far fa-eye-slash" aria-hidden="true"></i>
+                    </button>
+                </label>
+
+                <button type="submit" class="login-submit">
+                    <span>Login</span>
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+
+            <div class="login-divider"><span>Or</span></div>
+            <p class="register-prompt">New to CITPL?
+                <a class="register-link" href="register.html">Register Here</a>
+            </p>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        const passwordToggle = document.getElementById("passwordToggle");
+        const passwordInput = document.getElementById("userPassInput");
+
+        passwordToggle.addEventListener("click", () => {
+            const showPassword = passwordInput.type === "password";
+            passwordInput.type = showPassword ? "text" : "password";
+            passwordToggle.setAttribute("aria-pressed", String(showPassword));
+            passwordToggle.setAttribute("aria-label", showPassword ? "Hide password" : "Show password");
+            passwordToggle.querySelector("i").className = showPassword ? "far fa-eye" : "far fa-eye-slash";
+        });
+    </script>
+</body>
+
+</html>

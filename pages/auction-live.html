@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a14">
+    <title>CITPL 2026 — Live Auction Projector</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --coral: #5790f2;
+            --pink: #cbb8ff;
+            --yellow: #f4ca64;
+            --teal: #28b99b;
+
+            --gold: #f4ca64;
+            --gold-dark: #5790f2;
+            --red: #ec5c77;
+            --green: #28b99b;
+            --bg: #0b1738;
+            --card: rgba(71, 105, 190, 0.09);
+            --border: rgba(151, 173, 236, 0.2);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            color-scheme: dark;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 50% 10%, #18336f 0%, #0b1738 70%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── HEADER BAR ── */
+        .projector-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            background: rgba(9, 19, 22, 0.9);
+            border-bottom: 1px solid rgba(6, 148, 148, 0.25);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-brand .title-stack .title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.06em; color: #fff; }
+        .header-brand .title-stack .subtitle { font-size: 0.7rem; color: var(--pink); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+
+        .live-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255, 130, 67, 0.15);
+            border: 1px solid rgba(255, 130, 67, 0.4);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em;
+            color: var(--coral);
+        }
+        .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--coral); animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0%,100% { box-shadow: 0 0 0 0 rgba(255, 130, 67, 0.6); } 50% { box-shadow: 0 0 0 8px rgba(255, 130, 67, 0); } }
+
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .lot-badge {
+            background: rgba(252, 232, 131, 0.12);
+            border: 1px solid rgba(252, 232, 131, 0.35);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--yellow);
+        }
+        .btn-fs {
+            background: rgba(6, 148, 148, 0.15);
+            border: 1px solid var(--border);
+            color: var(--yellow);
+            border-radius: 8px;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .btn-fs:hover { background: rgba(255, 130, 67, 0.2); color: #fff; }
+
+        /* ── MAIN STAGE ── */
+        .stage {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 420px 1fr 320px;
+            grid-template-rows: 1fr;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        /* LEFT — Player Photo */
+        .player-photo-panel {
+            padding: 24px 20px 24px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(6, 148, 148, 0.06) 0%, transparent 100%);
+        }
+        .player-photo-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+        }
+        .player-photo-wrap img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 2px solid rgba(255, 130, 67, 0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .category-badge {
+            position: absolute;
+            top: 12px; left: 12px;
+            background: linear-gradient(135deg, #FF8243, #FCE883);
+            color: #091316;
+            font-size: 0.65rem; font-weight: 800;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(255, 130, 67, 0.4);
+        }
+        .player-role-badge {
+            position: absolute;
+            bottom: 12px; right: 12px;
+            background: rgba(9, 19, 22, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(6, 148, 148, 0.4);
+            color: var(--yellow);
+            font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 0.06em;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .player-meta-pills {
+            display: flex; gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        .meta-pill {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.7rem; color: var(--pink);
+            font-weight: 600;
+        }
+
+        /* CENTER — Player Info + Bid Info */
+        .center-panel {
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .player-name-block { line-height: 1; }
+        .player-category-label {
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em;
+            color: var(--pink);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .player-name {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            line-height: 0.92;
+            letter-spacing: 0.02em;
+            color: #fff;
+            word-break: break-word;
+        }
+        .player-detail {
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        /* Base price */
+        .base-price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .base-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-muted); }
+        .base-amount { font-size: 1.1rem; font-weight: 700; color: var(--yellow); }
+
+        /* Current Bid */
+        .bid-box {
+            background: linear-gradient(135deg, rgba(255, 130, 67, 0.12), rgba(6, 148, 148, 0.08));
+            border: 1px solid rgba(255, 130, 67, 0.35);
+            border-radius: 16px;
+            padding: 20px 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .bid-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; color: var(--coral); margin-bottom: 4px; }
+        .bid-amount {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            line-height: 1;
+            color: var(--yellow);
+            letter-spacing: 0.03em;
+            text-shadow: 0 0 20px rgba(252, 232, 131, 0.4);
+        }
+        .bid-team {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 8px;
+        }
+        .bid-team-label { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.08em; }
+        .bid-team-name {
+            font-size: 1.1rem; font-weight: 800;
+            color: #fff;
+        }
+        .winning-tag {
+            background: rgba(6, 148, 148, 0.2);
+            border: 1px solid rgba(6, 148, 148, 0.4);
+            color: var(--teal);
+            font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em;
+            padding: 3px 8px; border-radius: 5px;
+        }
+
+        /* STATUS BANNER */
+        .status-banner {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .status-text {
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .status-text.live { color: var(--teal); }
+        .status-text.paused { color: var(--yellow); }
+        .status-text.going { color: var(--coral); }
+        .status-text.sold { color: var(--yellow); }
+        .status-text.unsold { color: var(--text-muted); }
+        .next-bid-info { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* RIGHT — Timer + Bid History */
+        .right-panel {
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Timer */
+        .timer-block {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            background: linear-gradient(180deg, rgba(255, 130, 67, 0.08) 0%, transparent 100%);
+        }
+        .timer-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 4px; }
+        .timer-display {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 5rem;
+            line-height: 1;
+            letter-spacing: 0.04em;
+            color: var(--coral);
+            transition: color 0.3s;
+        }
+        .timer-display.safe { color: var(--teal); }
+        .timer-display.warn { color: var(--yellow); }
+        .timer-display.danger { color: var(--coral); animation: timer-flash 0.5s infinite; }
+        @keyframes timer-flash { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Bid History in right panel */
+        .bid-history-block {
+            flex: 1;
+            padding: 16px 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .bid-history-title {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+            color: var(--pink);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+        .bid-entry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+        .bid-entry.top-bid {
+            border-color: rgba(255, 130, 67, 0.5);
+            background: rgba(255, 130, 67, 0.1);
+        }
+        .bid-entry .bid-team-info .bid-rank {
+            font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
+            color: var(--pink);
+        }
+        .bid-entry .bid-team-info .bid-team-n {
+            font-size: 0.9rem; font-weight: 700; color: #fff;
+        }
+        .bid-entry.top-bid .bid-team-info .bid-team-n { color: var(--yellow); }
+        .bid-entry .bid-amount-val {
+            font-size: 1.05rem; font-weight: 800; color: var(--yellow);
+        }
+        .bid-entry .bid-time-val {
+            font-size: 0.65rem; color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .no-bids-msg { color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 24px 0; }
+
+        /* Team purse strip at bottom of right panel */
+        .purse-strip {
+            border-top: 1px solid var(--border);
+            padding: 12px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .purse-chip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 60px;
+        }
+        .purse-chip.highest { border-color: rgba(255, 130, 67, 0.5); background: rgba(255, 130, 67, 0.12); }
+        .purse-chip .tc { font-weight: 700; font-size: 0.7rem; color: #fff; }
+        .purse-chip .tp { color: var(--yellow); font-weight: 700; }
+
+        /* SOLD OVERLAY */
+        .sold-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            z-index: 999;
+            background: rgba(9, 19, 22, 0.92);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+            text-align: center;
+        }
+        .sold-overlay.show { display: flex; animation: overlay-in 0.5s ease; }
+        @keyframes overlay-in { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+        .sold-gavel { font-size: 6rem; animation: gavel-swing 0.6s ease; }
+        @keyframes gavel-swing { 0% { transform: rotate(-30deg); } 60% { transform: rotate(10deg); } 100% { transform: rotate(0); } }
+        .sold-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 7rem;
+            line-height: 1;
+            color: var(--yellow);
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 30px rgba(255, 130, 67, 0.6);
+        }
+        .sold-info {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .sold-price { color: var(--coral); }
+        .confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 998; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1100px) {
+            .stage { grid-template-columns: 300px 1fr 260px; }
+        }
+        @media (max-width: 768px) {
+            .stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; overflow-y: auto; }
+            .player-photo-panel { border-right: none; border-bottom: 1px solid var(--border); }
+            .right-panel { border-left: none; border-top: 1px solid var(--border); }
+            .timer-display { font-size: 3rem; }
+            html, body { overflow: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- CONFETTI CANVAS -->
+    <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+    <!-- SOLD OVERLAY -->
+    <div class="sold-overlay" id="soldOverlay">
+        <div class="sold-gavel">🔨</div>
+        <div class="sold-title">SOLD!</div>
+        <div class="sold-info" id="soldInfoText">Player sold to <span class="sold-price" id="soldTeamName">Team</span></div>
+        <div style="font-size:2.5rem;font-weight:800;color:var(--gold)" id="soldPriceText">₹0</div>
+    </div>
+
+    <!-- PROJECTOR HEADER -->
+    <div class="projector-header">
+        <div class="header-brand">
+            <img src="../assets/citpl-logo.png" alt="CITPL Logo" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">
+            <div class="title-stack">
+                <div class="title">CIT PREMIER LEAGUE 2026</div>
+                <div class="subtitle">Player Auction — Live Projector</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                <span id="auctionStatusBadge">LIVE</span>
+            </div>
+            <div class="lot-badge" id="lotBadge">LOT ---</div>
+            <button class="btn-fs" onclick="toggleFullscreen()" title="Fullscreen">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN STAGE -->
+    <div class="stage">
+        <!-- LEFT: Player Photo -->
+        <div class="player-photo-panel">
+            <div class="player-photo-wrap">
+                <img id="playerPhoto" src="../assets/citpl-logo.png" alt="Player Photo">
+                <div class="category-badge" id="playerCategoryBadge">CATEGORY A</div>
+                <div class="player-role-badge" id="playerRoleBadge">ALL-ROUNDER</div>
+            </div>
+            <div class="player-meta-pills" id="playerMetaPills">
+                <span class="meta-pill">Waiting for auctioneer...</span>
+            </div>
+        </div>
+
+        <!-- CENTER: Player Name + Bid Info -->
+        <div class="center-panel">
+            <div class="player-name-block">
+                <div class="player-category-label" id="playerCategoryLabel">CIT PREMIER LEAGUE 2026</div>
+                <div class="player-name" id="playerName">Waiting for auctioneer</div>
+                <div class="player-detail" id="playerDetail">The next lot will appear here.</div>
+            </div>
+
+            <div class="base-price-row">
+                <span class="base-label">BASE PRICE</span>
+                <span class="base-amount" id="basePrice">—</span>
+                <span style="color:var(--text-muted);font-size:0.75rem;margin-left:8px">·</span>
+                <span class="base-label" style="margin-left:8px">BID INCREMENT</span>
+                <span class="base-amount" id="bidIncrement">—</span>
+            </div>
+
+            <div class="bid-box">
+                <div class="bid-label">CURRENT BID</div>
+                <div class="bid-amount" id="currentBidAmount">₹0</div>
+                <div class="bid-team">
+                    <span class="bid-team-label">HIGHEST BIDDER</span>
+                    <span class="bid-team-name" id="highestBidderName">No bid yet</span>
+                    <span class="winning-tag" id="winningTag" style="display:none">WINNING</span>
+                </div>
+            </div>
+
+            <div class="status-banner">
+                <div class="status-text" id="auctionStatusText">WAITING</div>
+                <div class="next-bid-info" id="nextBidInfo">Next valid bid: —</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Timer + Bid History -->
+        <div class="right-panel">
+            <!-- Timer -->
+            <div class="timer-block">
+                <div class="timer-label">TIME REMAINING</div>
+                <div class="timer-display safe" id="timerDisplay">00:15</div>
+            </div>
+
+            <!-- Bid History (last 3) -->
+            <div class="bid-history-block">
+                <div class="bid-history-title">Last 3 Bids</div>
+                <div id="bidHistoryList">
+                    <div class="no-bids-msg">Bids will appear here</div>
+                </div>
+            </div>
+
+            <!-- Team purse strip -->
+            <div class="purse-strip" id="pursesStrip"></div>
+        </div>
+    </div>
+
+    <script src="../js/firebase-config.js"></script>
+    <script>
+        // ── FORMATTING ──
+        const money = v => `₹${Number(v || 0).toLocaleString('en-IN')}`;
+        const fmt2 = n => String(Math.max(0, n)).padStart(2, '0');
+
+        // ── CONFETTI ──
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        let confettiPieces = [];
+        let confettiRunning = false;
+
+        function startConfetti() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            confettiPieces = Array.from({ length: 150 }, () => ({
+                x: Math.random() * canvas.width,
+                y: -20,
+                r: 6 + Math.random() * 8,
+                dx: (Math.random() - 0.5) * 3,
+                dy: 2 + Math.random() * 4,
+                rot: Math.random() * 360,
+                dRot: (Math.random() - 0.5) * 6,
+                color: ['#FF8243', '#FFC0CB', '#FCE883', '#069494', '#ffffff'][Math.floor(Math.random() * 5)]
+            }));
+            confettiRunning = true;
+            animateConfetti();
+        }
+        function animateConfetti() {
+            if (!confettiRunning) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            confettiPieces.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.6);
+                ctx.restore();
+                p.x += p.dx; p.y += p.dy; p.rot += p.dRot;
+            });
+            confettiPieces = confettiPieces.filter(p => p.y < canvas.height + 20);
+            if (confettiPieces.length === 0) confettiRunning = false;
+            if (confettiRunning) requestAnimationFrame(animateConfetti);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // ── SOLD OVERLAY ──
+        let lastSoldStatus = null;
+        function showSoldOverlay(playerName, teamName, price) {
+            document.getElementById('soldInfoText').innerHTML = `<span style="font-weight:400">${playerName || 'Player'} sold to</span>`;
+            document.getElementById('soldTeamName').textContent = teamName || '—';
+            document.getElementById('soldPriceText').textContent = money(price);
+            document.getElementById('soldOverlay').classList.add('show');
+            startConfetti();
+            setTimeout(() => document.getElementById('soldOverlay').classList.remove('show'), 5000);
+        }
+
+        // ── STATUS STYLING ──
+        function styleStatus(status) {
+            const el = document.getElementById('auctionStatusText');
+            el.className = 'status-text';
+            const map = { LIVE: 'live', PAUSED: 'paused', GOING_ONCE: 'going', GOING_TWICE: 'going', SOLD: 'sold', UNSOLD: 'unsold', AUCTION_COMPLETE: 'sold' };
+            el.classList.add(map[status] || 'live');
+            el.textContent = String(status || 'WAITING').replaceAll('_', ' ');
+        }
+
+        // ── TIMER STYLING ──
+        function styleTimer(seconds) {
+            const el = document.getElementById('timerDisplay');
+            el.textContent = `00:${fmt2(seconds)}`;
+            el.className = 'timer-display';
+            if (seconds > 10) el.classList.add('safe');
+            else if (seconds > 5) el.classList.add('warn');
+            else el.classList.add('danger');
+        }
+
+        // ── MAIN RENDER ──
+        function renderProjector() {
+            const state = window.citplDB.db.auctionState;
+            const teams = window.citplDB.db.teams;
+            const player = window.citplDB.db.players.find(p => p.id === state.currentPlayerId);
+            const highestTeam = teams.find(t => t.id === state.highestTeamId);
+            const remaining = window.citplDB.getAuctionRemainingSeconds();
+
+            // Lot + Status
+            document.getElementById('lotBadge').textContent = `LOT ${String(state.currentLot || '---').padStart(3, '0')}`;
+            document.getElementById('auctionStatusBadge').textContent = String(state.status || 'WAITING').replaceAll('_', ' ');
+            styleStatus(state.status);
+            styleTimer(remaining);
+
+            // Player Info
+            if (player) {
+                document.getElementById('playerPhoto').src = player.photo || '../assets/citpl-logo.png';
+                document.getElementById('playerCategoryBadge').textContent = player.category || 'PLAYER';
+                document.getElementById('playerRoleBadge').textContent = String(player.role || 'PLAYER').replaceAll('_', ' ');
+                document.getElementById('playerCategoryLabel').textContent = `${player.category || ''} · CIT PREMIER LEAGUE 2026`;
+                document.getElementById('playerName').textContent = player.name;
+                document.getElementById('playerDetail').textContent = `${player.branch || 'CIT Abu Road'}${player.sem ? '  ·  ' + player.sem + ' Semester' : ''}`;
+                document.getElementById('basePrice').textContent = money(player.basePrice || 500);
+                document.getElementById('bidIncrement').textContent = money(state.bidIncrement);
+
+                const pills = [
+                    player.branch ? `<span class="meta-pill">${player.branch}</span>` : '',
+                    player.sem ? `<span class="meta-pill">${player.sem} Sem</span>` : '',
+                    player.registrationId ? `<span class="meta-pill">${player.registrationId}</span>` : ''
+                ].filter(Boolean).join('');
+                document.getElementById('playerMetaPills').innerHTML = pills || '<span class="meta-pill">CIT Abu Road</span>';
+            } else {
+                document.getElementById('playerPhoto').src = '../assets/citpl-logo.png';
+                document.getElementById('playerCategoryBadge').textContent = 'CITPL 2026';
+                document.getElementById('playerRoleBadge').textContent = '';
+                document.getElementById('playerCategoryLabel').textContent = 'CIT PREMIER LEAGUE 2026';
+                document.getElementById('playerName').textContent = state.status === 'AUCTION_COMPLETE' ? 'Auction Complete' : 'Waiting for auctioneer';
+                document.getElementById('playerDetail').textContent = state.status === 'AUCTION_COMPLETE' ? 'All players have been auctioned.' : 'The next lot will appear here.';
+                document.getElementById('basePrice').textContent = '—';
+                document.getElementById('bidIncrement').textContent = '—';
+                document.getElementById('playerMetaPills').innerHTML = '<span class="meta-pill">CIT Abu Road</span>';
+            }
+
+            // Current Bid
+            document.getElementById('currentBidAmount').textContent = money(state.currentBid);
+            document.getElementById('highestBidderName').textContent = highestTeam ? highestTeam.name : 'No bid yet';
+            document.getElementById('winningTag').style.display = highestTeam ? 'inline' : 'none';
+            document.getElementById('nextBidInfo').textContent = `Next valid bid: ${money(window.citplDB.getNextAuctionBid())}`;
+
+            // Bid History (last 3)
+            const history = [...(state.bidsHistory || [])].reverse().slice(0, 3);
+            if (history.length === 0) {
+                document.getElementById('bidHistoryList').innerHTML = '<div class="no-bids-msg">Bids will appear here as owners bid</div>';
+            } else {
+                document.getElementById('bidHistoryList').innerHTML = history.map((b, i) => `
+                    <div class="bid-entry ${i === 0 ? 'top-bid' : ''}">
+                        <div class="bid-team-info">
+                            <div class="bid-rank">${i === 0 ? '🥇 TOP BID' : i === 1 ? '🥈 2ND' : '🥉 3RD'}</div>
+                            <div class="bid-team-n">${b.teamName}</div>
+                            <div class="bid-time-val">${b.time}</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div class="bid-amount-val">${money(b.amount)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Purse strip
+            document.getElementById('pursesStrip').innerHTML = teams.map(t => `
+                <div class="purse-chip ${t.id === state.highestTeamId ? 'highest' : ''}">
+                    <span class="tc">${t.shortName || t.name.split(' ')[0]}</span>
+                    <span class="tp">${money(t.remainingPurse)}</span>
+                </div>
+            `).join('');
+
+            // SOLD overlay trigger
+            if (state.status === 'SOLD' && lastSoldStatus !== 'SOLD') {
+                const soldPlayer = window.citplDB.db.players.find(p => p.teamId === state.highestTeamId && p.soldAt);
+                showSoldOverlay(player ? player.name : 'Player', highestTeam ? highestTeam.name : '—', state.currentBid);
+            }
+            lastSoldStatus = state.status;
+        }
+
+        // ── FULLSCREEN ──
+        function toggleFullscreen() {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen();
+        }
+
+        // ── SUBSCRIBE ──
+        window.citplDB.subscribe(renderProjector);
+        window.addEventListener('storage', renderProjector);
+        window.addEventListener('resize', () => { if (confettiRunning) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } });
+        setInterval(renderProjector, 500);
+        renderProjector();
+    </script>
+</body>
+</html>
